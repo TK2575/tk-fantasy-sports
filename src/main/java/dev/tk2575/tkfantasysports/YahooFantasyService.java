@@ -64,6 +64,7 @@ public class YahooFantasyService {
 	private void maybeRefreshToken() throws IOException, ExecutionException, InterruptedException {
 		Instant now = Instant.now();
 		if (this.tokenExpiration == null || !now.isBefore(this.tokenExpiration)) {
+			log.info("Refreshing Bearer Token");
 			this.accessToken = service.refreshAccessToken(this.accessToken.getRefreshToken());
 			this.tokenExpiration = now.plusSeconds(this.accessToken.getExpiresIn());
 		}
