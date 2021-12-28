@@ -1,6 +1,7 @@
 package dev.tk2575.fantasysports.details.yahoo;
 
 import com.github.scribejava.core.model.Response;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -13,10 +14,19 @@ public class Client implements Runnable {
 	public void run() {
 		try {
 			YahooFantasyService service = YahooFantasyService.getInstance();
-			Response response = service.request("https://fantasysports.yahooapis.com/fantasy/v2/users;use_login=1/games/teams?response=json");
+			Response response = service.request(generateUrl(UserGameTeamList.URL));
 			if (response.getCode() == 200) {
 				UserGameTeamList userGameTeamList = YahooUtils.getGson().fromJson(response.getBody(), UserGameTeamList.class);
-				log.info(userGameTeamList);
+				UserGameTeam thisSeason = userGameTeamList.getUserGameTeams().stream().filter(each -> each.getGameCode().equals("nfl") && each.getGameSeason().equals("2021")).findAny().orElseThrow();
+				response = service.request(generateUrl(String.format("/fantasy/v2/leagues;league_keys=%s;out=standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
+
+				if (response.getCode() == 200) {
+					log.info(response.getBody());
+				}
+				else {
+					log.error("Bad response: " + response.getCode());
+					log.error(response.getMessage());
+				}
 			}
 			else {
 				log.error("Bad response: " + response.getCode());
@@ -26,6 +36,13 @@ public class Client implements Runnable {
 		catch (Exception e) {
 			log.error(e);
 		}
+	}
+
+	private String generateUrl(@NonNull String path) {
+		if (path.isBlank()) {
+			throw new IllegalArgumentException("path is a required argument");
+		}
+		return String.format("https://fantasysports.yahooapis.com%s?response=json", path);
 	}
 
 	public static void main(String[] args) {

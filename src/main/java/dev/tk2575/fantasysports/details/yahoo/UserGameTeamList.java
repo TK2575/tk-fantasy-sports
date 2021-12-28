@@ -14,6 +14,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 @ToString
 public class UserGameTeamList {
+	static final String URL = "/fantasy/v2/users;use_login=1/games/teams";
+
 	private final List<UserGameTeam> userGameTeams;
 
 	static JsonDeserializer<UserGameTeamList> deserializer() {

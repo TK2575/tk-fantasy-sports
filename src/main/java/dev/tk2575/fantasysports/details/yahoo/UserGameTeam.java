@@ -16,4 +16,13 @@ public class UserGameTeam {
 	private String teamKey;
 	private String teamUrl;
 	//TODO managers?
+
+	long getLeagueId() {
+		String s = this.teamKey.substring(this.teamKey.indexOf("l.") + 2);
+		return Long.parseLong(s.substring(0, s.indexOf(".t")));
+	}
+
+	String getGameLeagueCode() {
+		return this.teamKey.substring(0, this.teamKey.indexOf(".t"));
+	}
 }
