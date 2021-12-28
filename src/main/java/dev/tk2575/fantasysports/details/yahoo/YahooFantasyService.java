@@ -1,17 +1,14 @@
-package dev.tk2575.tkfantasysports;
+package dev.tk2575.fantasysports.details.yahoo;
 
 import com.github.scribejava.apis.YahooApi20;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth20Service;
-import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 
 import java.io.*;
 import java.time.Instant;
-import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
 
 @Service
@@ -43,10 +40,10 @@ public class YahooFantasyService {
 	}
 
 	private YahooFantasyService() throws IOException, ExecutionException, InterruptedException {
-		AppInfo appInfo = AppInfo.readAppInfoFromFile();
+		YahooAppInfo yahooAppInfo = YahooAppInfo.readAppInfoFromFile();
 
-		this.service = new ServiceBuilder(appInfo.getKey())
-				.apiSecret(appInfo.getSecret())
+		this.service = new ServiceBuilder(yahooAppInfo.getKey())
+				.apiSecret(yahooAppInfo.getSecret())
 				.callback(OAuthConstants.OOB)
 				.build(YahooApi20.instance());
 

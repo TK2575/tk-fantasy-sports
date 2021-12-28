@@ -1,6 +1,5 @@
-package dev.tk2575.tkfantasysports;
+package dev.tk2575.fantasysports.details.yahoo;
 
-import com.google.gson.Gson;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.util.ResourceUtils;
@@ -11,7 +10,7 @@ import java.util.Scanner;
 @RequiredArgsConstructor
 @Getter
 @Log4j2
-public class AppInfo {
+public class YahooAppInfo {
 	private final String key;
 	private final String secret;
 
@@ -19,15 +18,15 @@ public class AppInfo {
 		return ResourceUtils.getFile("temp/app-info.json");
 	}
 
-	public static void writeAppInfoToFile(AppInfo appInfo) throws IOException {
+	public static void writeAppInfoToFile(YahooAppInfo yahooAppInfo) throws IOException {
 		try (FileWriter writer = new FileWriter(getAppInfoFile())) {
-			writer.write(new Gson().toJson(appInfo));
+			writer.write(YahooUtils.getGson().toJson(yahooAppInfo));
 		}
 	}
 
-	public static AppInfo readAppInfoFromFile() {
+	public static YahooAppInfo readAppInfoFromFile() {
 		try (FileReader reader = new FileReader(getAppInfoFile())) {
-			return new Gson().fromJson(reader, AppInfo.class);
+			return YahooUtils.getGson().fromJson(reader, YahooAppInfo.class);
 		}
 		catch (IOException e) {
 			return null;
@@ -50,7 +49,7 @@ public class AppInfo {
 		log.info(">>");
 		final String secret = in.nextLine();
 
-		writeAppInfoToFile(new AppInfo(key, secret));
+		writeAppInfoToFile(new YahooAppInfo(key, secret));
 	}
 
 	public static void main(String[] args) throws Exception {

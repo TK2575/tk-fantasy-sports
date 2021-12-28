@@ -1,4 +1,4 @@
-package dev.tk2575.tkfantasysports;
+package dev.tk2575.fantasysports.details.yahoo;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;

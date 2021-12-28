@@ -1,4 +1,4 @@
-package dev.tk2575.tkfantasysports;
+package dev.tk2575.fantasysports.details.yahoo;
 
 import com.github.scribejava.core.model.Response;
 import lombok.extern.log4j.Log4j2;
@@ -15,7 +15,7 @@ public class Client implements Runnable {
 			YahooFantasyService service = YahooFantasyService.getInstance();
 			Response response = service.request("https://fantasysports.yahooapis.com/fantasy/v2/users;use_login=1/games/teams?response=json");
 			if (response.getCode() == 200) {
-				UserGameTeamList userGameTeamList = Utils.getGson().fromJson(response.getBody(), UserGameTeamList.class);
+				UserGameTeamList userGameTeamList = YahooUtils.getGson().fromJson(response.getBody(), UserGameTeamList.class);
 				log.info(userGameTeamList);
 			}
 			else {

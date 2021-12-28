@@ -1,4 +1,4 @@
-package dev.tk2575.tkfantasysports;
+package dev.tk2575.fantasysports.details.yahoo;
 
 import com.github.scribejava.apis.YahooApi20;
 import com.github.scribejava.core.builder.ServiceBuilder;
@@ -35,11 +35,11 @@ public class BearerToken {
 			file.delete();
 		}
 
-		AppInfo appInfo = AppInfo.readAppInfoFromFile();
+		YahooAppInfo yahooAppInfo = YahooAppInfo.readAppInfoFromFile();
 
 		final Scanner in = new Scanner(System.in);
-		final OAuth20Service service = new ServiceBuilder(appInfo.getKey())
-				.apiSecret(appInfo.getSecret())
+		final OAuth20Service service = new ServiceBuilder(yahooAppInfo.getKey())
+				.apiSecret(yahooAppInfo.getSecret())
 				.callback(OAuthConstants.OOB)
 				.build(YahooApi20.instance());
 

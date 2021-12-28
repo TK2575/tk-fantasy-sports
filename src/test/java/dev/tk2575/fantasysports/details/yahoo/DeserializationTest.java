@@ -1,7 +1,5 @@
-package dev.tk2575.tkfantasysports;
+package dev.tk2575.fantasysports.details.yahoo;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
@@ -9,28 +7,20 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DeserializationTest {
 
 	static final String rawJson = rawJson();
 
-	final Gson gson = gson();
-
-	private Gson gson() {
-		return new GsonBuilder()
-				.registerTypeAdapter(UserGameTeamList.class, UserGameTeamList.deserializer())
-				.create();
-	}
-
 	@Test
-	void testDeserialization() {
-		assertNotNull(rawJson);
-		assertFalse(rawJson.isBlank());
+	void testUserGameTeams() {
+		UserGameTeamList userGameTeam = YahooUtils.getGson().fromJson(rawJson, UserGameTeamList.class);
 
-		UserGameTeamList userGameTeam = gson.fromJson(rawJson(), UserGameTeamList.class);
-		System.out.println(userGameTeam);
+		assertNotNull(userGameTeam);
+		assertNotNull(userGameTeam.getUserGameTeams());
+		assertEquals(11, userGameTeam.getUserGameTeams().size());
 	}
 
 	static String rawJson() {
