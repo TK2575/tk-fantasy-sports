@@ -16,6 +16,7 @@ public class YahooUtils {
 	private static Gson gson() {
 		return new GsonBuilder()
 				.registerTypeAdapter(UserGameTeamList.class, UserGameTeamList.deserializer())
+				.registerTypeAdapter(LeagueStandings.class, LeagueStandings.deserializer())
 				.create();
 	}
 }

@@ -15,7 +15,6 @@ public class UserGameTeam {
 	private String gameSeason;
 	private String teamKey;
 	private String teamUrl;
-	//TODO managers?
 
 	long getLeagueId() {
 		String s = this.teamKey.substring(this.teamKey.indexOf("l.") + 2);

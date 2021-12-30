@@ -1,6 +1,5 @@
 package dev.tk2575.fantasysports.details.yahoo;
 
-import com.github.scribejava.core.model.Response;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -14,24 +13,18 @@ public class Client implements Runnable {
 	public void run() {
 		try {
 			YahooFantasyService service = YahooFantasyService.getInstance();
-			Response response = service.request(generateUrl(UserGameTeamList.URL));
-			if (response.getCode() == 200) {
-				UserGameTeamList userGameTeamList = YahooUtils.getGson().fromJson(response.getBody(), UserGameTeamList.class);
-				UserGameTeam thisSeason = userGameTeamList.getUserGameTeams().stream().filter(each -> each.getGameCode().equals("nfl") && each.getGameSeason().equals("2021")).findAny().orElseThrow();
-				response = service.request(generateUrl(String.format("/fantasy/v2/leagues;league_keys=%s;out=standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
+			String response = service.request(generateUrl(UserGameTeamList.URL));
+			UserGameTeamList userGameTeamList = YahooUtils.getGson().fromJson(response, UserGameTeamList.class);
 
-				if (response.getCode() == 200) {
-					log.info(response.getBody());
-				}
-				else {
-					log.error("Bad response: " + response.getCode());
-					log.error(response.getMessage());
-				}
-			}
-			else {
-				log.error("Bad response: " + response.getCode());
-				log.error(response.getMessage());
-			}
+			UserGameTeam thisSeason =
+					userGameTeamList.getUserGameTeams()
+							.stream()
+							.filter(each -> each.getGameCode().equals("nfl") && each.getGameSeason().equals("2021"))
+							.findAny()
+							.orElseThrow();
+
+			response = service.request(generateUrl(String.format("/fantasy/v2/leagues;league_keys=%s;out=standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
+			log.info(response);
 		}
 		catch (Exception e) {
 			log.error(e);

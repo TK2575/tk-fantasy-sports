@@ -67,10 +67,15 @@ public class YahooFantasyService {
 		}
 	}
 
-	public Response request(String url) throws IOException, ExecutionException, InterruptedException {
+	public String request(String url) throws IOException, ExecutionException, InterruptedException, YahooFantasyServiceException {
 		maybeRefreshToken();
 		final OAuthRequest request = new OAuthRequest(Verb.GET, url);
 		service.signRequest(accessToken, request);
-		return service.execute(request);
+		Response response = service.execute(request);
+		if (response.getCode() == 200) {
+			return response.getBody();
+		}
+		log.error(String.format("Received %s code for url: %s", response.getCode(), url));
+		throw new YahooFantasyServiceException(response.getMessage());
 	}
 }

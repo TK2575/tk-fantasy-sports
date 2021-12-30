@@ -36,32 +36,14 @@ public class UserGameTeamList {
 							JsonElement eachGameValue = eachGame.getValue();
 							if (eachGameValue.isJsonObject()) {
 								JsonArray game = eachGameValue.getAsJsonObject().get("game").getAsJsonArray();
-								JsonObject gameFields = game.get(0).getAsJsonObject();
-								long gameKey = gameFields.get("game_key").getAsLong();
-								String gameName = gameFields.get("name").getAsString();
-								String gameCode = gameFields.get("code").getAsString();
-								String gameSeason = gameFields.get("season").getAsString();
-								builder = builder.gameKey(gameKey).gameName(gameName).gameCode(gameCode).gameSeason(gameSeason);
+								builder = parseGameFields(builder, game);
 
 								JsonElement teamsElement = game.get(1).getAsJsonObject().get("teams");
 								if (teamsElement.isJsonObject()) {
 									JsonObject teams = teamsElement.getAsJsonObject();
 									for (Map.Entry<String, JsonElement> eachTeam : teams.entrySet()) {
 										if (!eachTeam.getKey().equals("count")) {
-											JsonArray teamFields = eachTeam.getValue().getAsJsonObject().get("team").getAsJsonArray().get(0).getAsJsonArray();
-											String teamKey = null;
-											String teamUrl = null;
-											for (JsonElement teamField : teamFields) {
-												if (teamKey == null) {
-													JsonElement teamKeyElement = teamField.getAsJsonObject().get("team_key");
-													if (teamKeyElement != null) teamKey = teamKeyElement.getAsString();
-												}
-												if (teamUrl == null) {
-													JsonElement teamUrlElement = teamField.getAsJsonObject().get("url");
-													if (teamUrlElement != null) teamUrl = teamUrlElement.getAsString();
-												}
-											}
-											builder = builder.teamKey(teamKey).teamUrl(teamUrl);
+											builder = parseTeamFields(builder, eachTeam);
 											results.add(builder.build());
 										}
 									}
@@ -73,5 +55,33 @@ public class UserGameTeamList {
 			}
 			return new UserGameTeamList(results);
 		};
+	}
+
+	private static UserGameTeam.UserGameTeamBuilder parseGameFields(UserGameTeam.UserGameTeamBuilder builder, JsonArray game) {
+		JsonObject gameFields = game.get(0).getAsJsonObject();
+		long gameKey = gameFields.get("game_key").getAsLong();
+		String gameName = gameFields.get("name").getAsString();
+		String gameCode = gameFields.get("code").getAsString();
+		String gameSeason = gameFields.get("season").getAsString();
+		builder = builder.gameKey(gameKey).gameName(gameName).gameCode(gameCode).gameSeason(gameSeason);
+		return builder;
+	}
+
+	private static UserGameTeam.UserGameTeamBuilder parseTeamFields(UserGameTeam.UserGameTeamBuilder builder, Map.Entry<String, JsonElement> eachTeam) {
+		JsonArray teamFields = eachTeam.getValue().getAsJsonObject().get("team").getAsJsonArray().get(0).getAsJsonArray();
+		String teamKey = null;
+		String teamUrl = null;
+		for (JsonElement teamField : teamFields) {
+			if (teamKey == null) {
+				JsonElement teamKeyElement = teamField.getAsJsonObject().get("team_key");
+				if (teamKeyElement != null) teamKey = teamKeyElement.getAsString();
+			}
+			if (teamUrl == null) {
+				JsonElement teamUrlElement = teamField.getAsJsonObject().get("url");
+				if (teamUrlElement != null) teamUrl = teamUrlElement.getAsString();
+			}
+		}
+		builder = builder.teamKey(teamKey).teamUrl(teamUrl);
+		return builder;
 	}
 }
