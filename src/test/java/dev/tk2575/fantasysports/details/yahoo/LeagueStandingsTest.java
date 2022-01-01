@@ -28,7 +28,9 @@ class LeagueStandingsTest {
 
 		assertNotNull(leagueStandings);
 		assertNotNull(leagueStandings.getStandings());
-		//TODO expected value test
+		for (YahooTeam team : leagueStandings.getStandings().values()) {
+			assertNotNull(team.getPoints());
+		}
 	}
 
 }
