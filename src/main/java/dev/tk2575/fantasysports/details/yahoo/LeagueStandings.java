@@ -14,7 +14,7 @@ import static dev.tk2575.fantasysports.details.yahoo.YahooUtils.roundTwoDecimalP
 @Getter
 @ToString
 public class LeagueStandings {
-	static final String URL = "/fantasy/v2/leagues;league_keys=%s;out=standings";
+	static final String URL = "/fantasy/v2/league/%s;out=standings";
 
 	private final SortedMap<Integer,YahooTeam> standings = new TreeMap<>();
 
@@ -43,6 +43,9 @@ public class LeagueStandings {
 									for (JsonElement field : teamElement.getAsJsonArray()) {
 										if (field.isJsonObject()) {
 											JsonObject fieldObj = field.getAsJsonObject();
+											if (fieldObj.get("team_key") != null) {
+												builder = builder.key(fieldObj.get("team_key").getAsString());
+											}
 											if (fieldObj.get("team_id") != null) {
 												builder = builder.id(fieldObj.get("team_id").getAsInt());
 											}

@@ -10,6 +10,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class YahooTeam {
+	private String key;
 	private int id;
 	private int rank;
 	private String name;

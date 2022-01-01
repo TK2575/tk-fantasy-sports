@@ -29,6 +29,7 @@ class LeagueStandingsTest {
 		assertNotNull(leagueStandings);
 		assertNotNull(leagueStandings.getStandings());
 		for (YahooTeam team : leagueStandings.getStandings().values()) {
+			assertTrue(team.getKey() != null && !team.getKey().isBlank());
 			assertNotNull(team.getPoints());
 		}
 	}

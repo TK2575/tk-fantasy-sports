@@ -1,5 +1,6 @@
 package dev.tk2575.fantasysports.details.yahoo;
 
+import com.google.gson.Gson;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -14,7 +15,8 @@ public class Client implements Runnable {
 		try {
 			YahooFantasyService service = YahooFantasyService.getInstance();
 			String response = service.request(generateUrl(UserGameTeamList.URL));
-			UserGameTeamList userGameTeamList = YahooUtils.getGson().fromJson(response, UserGameTeamList.class);
+			Gson gson = YahooUtils.getGson();
+			UserGameTeamList userGameTeamList = gson.fromJson(response, UserGameTeamList.class);
 
 			UserGameTeam thisSeason =
 					userGameTeamList.getUserGameTeams()
@@ -23,8 +25,9 @@ public class Client implements Runnable {
 							.findAny()
 							.orElseThrow();
 
-			response = service.request(generateUrl(String.format("/fantasy/v2/leagues;league_keys=%s;out=standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
-			log.info(response);
+			response = service.request(generateUrl(String.format("/fantasy/v2/league/%s;out=standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
+			YahooTeam yahooTeam = gson.fromJson(response, LeagueStandings.class).getStandings().values().stream().findAny().orElseThrow();
+			log.info(service.request(generateUrl(String.format("/fantasy/v2/team/%s/draftresults;out=players", yahooTeam.getKey()))));
 		}
 		catch (Exception e) {
 			log.error(e);
