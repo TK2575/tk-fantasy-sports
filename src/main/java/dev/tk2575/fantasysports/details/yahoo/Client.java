@@ -6,6 +6,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import java.util.List;
+
 @Log4j2
 public class Client implements Runnable {
 
@@ -26,8 +28,10 @@ public class Client implements Runnable {
 							.orElseThrow();
 
 			response = service.request(generateUrl(String.format("/fantasy/v2/league/%s;out=standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
-			YahooTeam yahooTeam = gson.fromJson(response, LeagueStandings.class).getStandings().values().stream().findAny().orElseThrow();
-			log.info(service.request(generateUrl(String.format("/fantasy/v2/team/%s/draftresults;out=players", yahooTeam.getKey()))));
+			List<YahooTeam> teams = gson.fromJson(response, LeagueStandings.class).getStandings().values().stream().toList();
+			String url = generateUrl(String.format("/fantasy/v2/league/%s/draftresults", thisSeason.getGameLeagueCode()));
+			log.info(url);
+			log.info(service.request(url));
 		}
 		catch (Exception e) {
 			log.error(e);
