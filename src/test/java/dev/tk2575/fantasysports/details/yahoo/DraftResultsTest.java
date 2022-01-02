@@ -13,7 +13,7 @@ class DraftResultsTest {
 
 	static {
 		try {
-			rawJson = TestUtils.readTestResourceFileToString("DraftResults.json");
+			rawJson = TestUtils.readTestResourceFileToString("LeagueResources.json");
 		}
 		catch (IOException e) {
 			e.printStackTrace();
