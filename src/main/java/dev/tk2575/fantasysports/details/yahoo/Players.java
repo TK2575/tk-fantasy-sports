@@ -27,11 +27,36 @@ public class Players {
 				if (eachLeagueResource.isJsonObject() && eachLeagueResource.getAsJsonObject().get("players") != null) {
 					JsonObject players = eachLeagueResource.getAsJsonObject().get("players").getAsJsonObject();
 					for (Map.Entry<String, JsonElement> playerEntry : players.entrySet()) {
-						JsonArray playerArray = playerEntry.getValue().getAsJsonObject().get("player").getAsJsonArray();
-						if (playerArray != null) {
-							System.out.println(playerArray);
-						}
+						Player.PlayerBuilder player = Player.builder();
+						JsonElement playerEntryValue = playerEntry.getValue();
+						if (playerEntryValue.isJsonObject()) {
+							JsonArray playerArray = playerEntryValue.getAsJsonObject().get("player").getAsJsonArray();
+							for (JsonElement playerContent : playerArray) {
+								for (JsonElement playerElement : playerContent.getAsJsonArray()) {
+									if (playerElement.isJsonObject()) {
+										JsonObject each = playerElement.getAsJsonObject();
+										if (each.get("player_key") != null) {
+											player = player.key(each.get("player_key").getAsString());
+										}
+										else if (each.get("player_id") != null) {
+											player = player.id(Long.parseLong(each.get("player_id").getAsString()));
+										}
+										else if (each.get("name") != null) {
+											JsonObject name = each.get("name").getAsJsonObject();
+											player = player.fullName(name.get("full").getAsString()).lastName(name.get("last").getAsString()).firstName(name.get("first").getAsString());
+										}
+										else if (each.get("editorial_player_key") != null) {
+											player = player.editorialPlayerKey(each.get("editorial_player_key").getAsString());
+										}
+										else if (each.get("display_position") != null) {
+											player = player.position(each.get("display_position").getAsString());
+										}
+									}
+								}
 
+							}
+							results.add(player.build());
+						}
 					}
 				}
 			}
