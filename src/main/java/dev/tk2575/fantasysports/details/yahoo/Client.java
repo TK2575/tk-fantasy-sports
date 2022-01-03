@@ -6,11 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Log4j2
 public class Client implements Runnable {
 
@@ -30,17 +25,9 @@ public class Client implements Runnable {
 							.findAny()
 							.orElseThrow();
 
-			response = service.request(generateUrl(String.format("/fantasy/v2/league/%s;out=draftresults,standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
-			File file = new File("temp/extraLeagueResources.json");
-			try (FileWriter writer = new FileWriter(file)) {
-				writer.write(response);
-			}
-
-			List<YahooTeam> teams = gson.fromJson(response, LeagueStandings.class).getStandings().values().stream().toList();
-			log.info(teams.stream().map(YahooTeam::getName).collect(Collectors.joining(", ")));
-
-			List<DraftResult> draftResults = gson.fromJson(response, DraftResults.class).getResults();
-			log.info(draftResults.stream().collect(Collectors.groupingBy(DraftResult::getTeamKey, Collectors.summingLong(DraftResult::getCost))));
+//			response = service.request(generateUrl(String.format("/fantasy/v2/league/%s;out=draftresults,standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
+			response = service.request(generateUrl(String.format("/fantasy/v2/league/%s/players;status=A;count=5", thisSeason.getGameLeagueCode())));
+			log.info(response);
 		}
 		catch (Exception e) {
 			log.error(e);
