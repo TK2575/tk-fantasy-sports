@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 
 @NoArgsConstructor(access = AccessLevel.NONE)
@@ -23,6 +22,7 @@ public class YahooUtils {
 				.registerTypeAdapter(LeagueStandings.class, LeagueStandings.deserializer())
 				.registerTypeAdapter(DraftResults.class, DraftResults.deserializer())
 				.registerTypeAdapter(Players.class, Players.deserializer())
+				.registerTypeAdapter(LeagueDetails.class, LeagueDetails.deserializer())
 				.create();
 	}
 	

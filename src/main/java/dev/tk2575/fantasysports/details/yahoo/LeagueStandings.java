@@ -16,9 +16,13 @@ import static dev.tk2575.fantasysports.details.yahoo.YahooUtils.roundTwoDecimalP
 public class LeagueStandings {
 	static final String URL = "/fantasy/v2/league/%s;out=standings";
 
+	private final String season;
+	private final String leagueKey;
 	private final SortedMap<Integer,YahooTeam> standings = new TreeMap<>();
 
-	public LeagueStandings(List<YahooTeam> teams) {
+	public LeagueStandings(String season, String leagueKey, List<YahooTeam> teams) {
+		this.season = season;
+		this.leagueKey = leagueKey;
 		List<YahooTeam> sorted = teams.stream().sorted(Comparator.comparing(YahooTeam::getRank)).toList();
 		for (YahooTeam each : sorted) {
 			this.standings.put(each.getRank(), each);
@@ -29,11 +33,18 @@ public class LeagueStandings {
 		return (jsonElement, type, jsonDeserializationContext) -> {
 			List<YahooTeam> results = new ArrayList<>();
 			YahooTeam.YahooTeamBuilder builder = YahooTeam.builder();
+			String season = null;
+			String leagueKey = null;
 
 			JsonArray leagueResources = jsonElement.getAsJsonObject().get("fantasy_content").getAsJsonObject().get("league").getAsJsonArray();
 			for (JsonElement eachLeagueResource : leagueResources) {
-				JsonElement standings = eachLeagueResource.getAsJsonObject().get("standings");
-				if (standings != null) {
+				JsonObject leagueResourceObject = eachLeagueResource.getAsJsonObject();
+				if (leagueResourceObject.get("league_key") != null) {
+					leagueKey = leagueResourceObject.get("league_key").getAsString();
+					season = leagueResourceObject.get("season").getAsString();
+				}
+				else if (leagueResourceObject.get("standings") != null) {
+					JsonElement standings = leagueResourceObject.get("standings");
 					Set<Map.Entry<String, JsonElement>> teams = standings.getAsJsonArray().get(0).getAsJsonObject().get("teams").getAsJsonObject().entrySet();
 					for (Map.Entry<String, JsonElement> teamElements : teams) {
 						if (teamElements.getValue().isJsonObject()) {
@@ -70,7 +81,6 @@ public class LeagueStandings {
 											else if (fieldObj.get("managers") != null) {
 												parseManagers(builder, fieldObj.get("managers"));
 											}
-
 										}
 									}
 								}
@@ -79,7 +89,8 @@ public class LeagueStandings {
 								}
 								else if (teamElement.isJsonObject() && teamElement.getAsJsonObject().get("team_standings") != null) {
 									JsonObject teamStandings = teamElement.getAsJsonObject().get("team_standings").getAsJsonObject();
-									builder.rank(Integer.parseInt(teamStandings.get("rank").getAsString()));
+									String rank = teamStandings.get("rank").getAsString();
+									builder.rank(rank == null || rank.isBlank() ? 0 : Integer.parseInt(rank));
 
 									JsonObject outcomeTotals = teamStandings.get("outcome_totals").getAsJsonObject();
 									builder.wins(Integer.parseInt(outcomeTotals.get("wins").getAsString())).losses(Integer.parseInt(outcomeTotals.get("losses").getAsString())).ties(outcomeTotals.get("ties").getAsInt());
@@ -93,7 +104,7 @@ public class LeagueStandings {
 					}
 				}
 			}
-			return new LeagueStandings(results);
+			return new LeagueStandings(season, leagueKey, results);
 		};
 	}
 

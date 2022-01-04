@@ -27,11 +27,13 @@ class LeagueStandingsTest {
 		LeagueStandings leagueStandings = YahooUtils.getGson().fromJson(rawJson, LeagueStandings.class);
 
 		assertNotNull(leagueStandings);
-		assertNotNull(leagueStandings.getStandings());
+		assertTrue(leagueStandings.getSeason() != null && !leagueStandings.getSeason().isBlank());
+		assertTrue(leagueStandings.getLeagueKey() != null && !leagueStandings.getLeagueKey().isBlank());
+		assertTrue(leagueStandings.getStandings() != null && !leagueStandings.getStandings().isEmpty());
+
 		for (YahooTeam team : leagueStandings.getStandings().values()) {
 			assertTrue(team.getKey() != null && !team.getKey().isBlank());
 			assertNotNull(team.getPoints());
 		}
 	}
-
 }
