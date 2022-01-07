@@ -23,6 +23,7 @@ public class YahooUtils {
 				.registerTypeAdapter(DraftResults.class, DraftResults.deserializer())
 				.registerTypeAdapter(Players.class, Players.deserializer())
 				.registerTypeAdapter(LeagueDetails.class, LeagueDetails.deserializer())
+				.registerTypeAdapter(RosterPositions.class, RosterPositions.deserializer())
 				.create();
 	}
 	

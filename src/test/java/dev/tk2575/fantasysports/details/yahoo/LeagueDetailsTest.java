@@ -33,6 +33,8 @@ class LeagueDetailsTest {
 		assertFalse(leagueDetails.isMultiweekChampionship());
 		assertTrue(leagueDetails.isUsesFaab());
 		assertTrue(leagueDetails.isUsesNegativePoints());
+
+		assertTrue(leagueDetails.getRosterPositions() != null && !leagueDetails.getRosterPositions().isEmpty());
 	}
 
 }

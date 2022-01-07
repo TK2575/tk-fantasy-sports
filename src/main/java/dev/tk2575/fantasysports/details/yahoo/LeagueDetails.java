@@ -8,6 +8,8 @@ import lombok.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @ToString
@@ -45,6 +47,7 @@ public class LeagueDetails {
 	private final LocalDate tradeEndDate;
 	private final boolean usesFractionalPoints;
 	private final boolean usesNegativePoints;
+	private final List<RosterPosition> rosterPositions = new ArrayList<>();
 
 	LeagueDetails(@NonNull LeagueInfo info, @NonNull LeagueSettings settings) {
 		this.leagueId = info.getLeagueId();
@@ -80,6 +83,8 @@ public class LeagueDetails {
 		this.tradeEndDate = settings.getTradeEndDate();
 		this.usesFractionalPoints = settings.isUsesFractionalPoints();
 		this.usesNegativePoints = settings.isUsesNegativePoints();
+
+		this.rosterPositions.addAll(settings.getRosterPositions().getRosterPositions());
 	}
 
 	static JsonDeserializer<LeagueDetails> deserializer() {

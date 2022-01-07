@@ -66,6 +66,9 @@ public class LeagueSettings {
 	@SerializedName("uses_negative_points")
 	private int usesNegativePoints;
 
+	@SerializedName("roster_positions")
+	private RosterPositions rosterPositions;
+
 	boolean isUsesNegativePoints() {
 		return this.usesNegativePoints == 1;
 	}
@@ -81,8 +84,6 @@ public class LeagueSettings {
 	LocalDate getTradeEndDate() {
 		return LocalDate.parse(this.tradeEndDate, DateTimeFormatter.ISO_DATE);
 	}
-
-	//TODO roster positions
 
 	//TODO stat categories
 
