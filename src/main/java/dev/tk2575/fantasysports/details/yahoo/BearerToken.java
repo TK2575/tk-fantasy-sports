@@ -26,6 +26,7 @@ public class BearerToken {
 	}
 
 	private static File getAccessTokenFile() throws FileNotFoundException {
+		ResourceUtils.getFile("temp").mkdir();
 		return ResourceUtils.getFile("temp/access-token.json");
 	}
 

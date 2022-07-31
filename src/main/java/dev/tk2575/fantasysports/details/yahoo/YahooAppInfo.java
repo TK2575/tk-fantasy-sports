@@ -15,6 +15,7 @@ public class YahooAppInfo {
 	private final String secret;
 
 	private static File getAppInfoFile() throws FileNotFoundException {
+		ResourceUtils.getFile("temp").mkdir();
 		return ResourceUtils.getFile("temp/app-info.json");
 	}
 
