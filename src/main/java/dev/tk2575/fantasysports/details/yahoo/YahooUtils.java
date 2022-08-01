@@ -24,9 +24,10 @@ public class YahooUtils {
 				.registerTypeAdapter(Players.class, Players.deserializer())
 				.registerTypeAdapter(LeagueDetails.class, LeagueDetails.deserializer())
 				.registerTypeAdapter(RosterPositions.class, RosterPositions.deserializer())
+				.registerTypeAdapter(Matchups.class, Matchups.deserializer())
 				.create();
 	}
-	
+
 	public static BigDecimal roundTwoDecimalPlaces(BigDecimal value) {
 		return round(value,2);
 	}
