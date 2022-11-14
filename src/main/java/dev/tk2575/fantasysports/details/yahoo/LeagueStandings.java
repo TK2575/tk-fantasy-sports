@@ -13,7 +13,7 @@ import static dev.tk2575.fantasysports.details.yahoo.YahooUtils.roundTwoDecimalP
 
 @Getter
 @ToString
-public class LeagueStandings {
+public class LeagueStandings implements YahooFantasyObject {
 	static final String URL = "/fantasy/v2/league/%s;out=standings";
 
 	private final String season;

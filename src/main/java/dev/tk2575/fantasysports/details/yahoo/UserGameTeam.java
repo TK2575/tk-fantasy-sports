@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class UserGameTeam {
+public class UserGameTeam implements YahooFantasyObject {
 
 	private String userGuid;
 	private long gameKey;

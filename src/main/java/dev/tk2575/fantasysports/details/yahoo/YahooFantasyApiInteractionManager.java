@@ -4,6 +4,8 @@ import com.github.scribejava.apis.YahooApi20;
 import com.github.scribejava.core.builder.ServiceBuilder;
 import com.github.scribejava.core.model.*;
 import com.github.scribejava.core.oauth.OAuth20Service;
+import com.google.gson.Gson;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +15,7 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 @Log4j2
-public class YahooFantasyService {
+class YahooFantasyApiInteractionManager {
 
 //	FIXME
 //	@Value("${app.key}")
@@ -26,11 +28,13 @@ public class YahooFantasyService {
 	private Instant tokenExpiration;
 	private final OAuth20Service service;
 
-	private static YahooFantasyService instance;
+	private final Gson gson = YahooUtils.getGson();
+
+	private static YahooFantasyApiInteractionManager instance;
 
 	static {
 		try {
-			instance = new YahooFantasyService();
+			instance = new YahooFantasyApiInteractionManager();
 		}
 		catch (Exception e) {
 			log.fatal("Unable to initialize YahooFantasyService");
@@ -39,7 +43,7 @@ public class YahooFantasyService {
 		}
 	}
 
-	private YahooFantasyService() throws IOException, ExecutionException, InterruptedException {
+	private YahooFantasyApiInteractionManager() throws IOException, ExecutionException, InterruptedException {
 		YahooAppInfo yahooAppInfo = YahooAppInfo.readAppInfoFromFile();
 
 		this.service = new ServiceBuilder(yahooAppInfo.getKey())
@@ -54,7 +58,7 @@ public class YahooFantasyService {
 		maybeRefreshToken();
 	}
 
-	public static YahooFantasyService getInstance() {
+	static YahooFantasyApiInteractionManager getInstance() {
 		return instance;
 	}
 
@@ -67,15 +71,38 @@ public class YahooFantasyService {
 		}
 	}
 
-	public String request(String url) throws IOException, ExecutionException, InterruptedException, YahooFantasyServiceException {
-		maybeRefreshToken();
-		final OAuthRequest request = new OAuthRequest(Verb.GET, url);
-		service.signRequest(accessToken, request);
-		Response response = service.execute(request);
+	String request(String url) throws IOException, ExecutionException, InterruptedException, YahooFantasyServiceException {
+		Response response = null;
+		try {
+			maybeRefreshToken();
+			final OAuthRequest request = new OAuthRequest(Verb.GET, url);
+			service.signRequest(accessToken, request);
+			response = service.execute(request);
+		}
+		catch (Exception e) {
+			throw new YahooFantasyServiceException(e);
+		}
 		if (response.getCode() == 200) {
 			return response.getBody();
 		}
 		log.error(String.format("Received %s code for url: %s", response.getCode(), url));
 		throw new YahooFantasyServiceException(response.getMessage());
+	}
+
+	String generateUrl(@NonNull String path) {
+		if (path.isBlank()) {
+			throw new IllegalArgumentException("path is a required argument");
+		}
+		return String.format("https://fantasysports.yahooapis.com%s?response=json", path);
+	}
+
+	public static class YahooFantasyServiceException extends Exception {
+		public YahooFantasyServiceException(String message) {
+			super(message);
+		}
+
+		public YahooFantasyServiceException(Exception e) {
+			super(e);
+		}
 	}
 }

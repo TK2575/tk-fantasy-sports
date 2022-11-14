@@ -13,7 +13,7 @@ import java.util.Map;
 @Getter
 @ToString
 @RequiredArgsConstructor
-public class DraftResults {
+public class DraftResults implements YahooFantasyObject {
 	static final String URL = "/fantasy/v2/league/%s/draftresults";
 
 	private final List<DraftResult> results;

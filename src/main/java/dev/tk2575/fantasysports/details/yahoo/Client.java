@@ -1,7 +1,7 @@
 package dev.tk2575.fantasysports.details.yahoo;
 
 import com.google.gson.Gson;
-import lombok.*;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -9,89 +9,45 @@ import org.springframework.context.event.EventListener;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Log4j2
 public class Client implements Runnable {
 
-    private final YahooFantasyService service = YahooFantasyService.getInstance();
-    private final Gson gson = YahooUtils.getGson();
+    private final YahooFantasyApiInteractionManager service = YahooFantasyApiInteractionManager.getInstance();
+
+    private UserGameTeamList userGameTeamList;
 
     @EventListener(ApplicationReadyEvent.class)
     @Override
     public void run() {
         try {
-            log.info(getAverageWinningScore(2021).toPlainString());
+            UserGameTeamList nfl2022 = new UserGameTeamListService().getResults("nfl", 2022);
+            String gameLeagueCode = nfl2022.getUserGameTeams().get(0).getGameLeagueCode();
 
-//			response = service.request(generateUrl(String.format("/fantasy/v2/league/%s;out=draftresults,standings,settings,scoreboard", thisSeason.getGameLeagueCode())));
-//			response = service.request(generateUrl(String.format("/fantasy/v2/league/%s/players;status=A;count=5", thisSeason.getGameLeagueCode())));
-
-			/*List<UserGameTeam> nflSeasons = userGameTeamList.getUserGameTeams().stream().filter(each -> each.getGameCode().equals("nfl")).toList();
-			List<LeagueStandings> standings = new ArrayList<>();
-			for (UserGameTeam nflSeason : nflSeasons) {
-				response = service.request(generateUrl(String.format("/fantasy/v2/league/%s;out=standings", nflSeason.getGameLeagueCode())));
-				standings.add(gson.fromJson(response, LeagueStandings.class));
-			}
-			log.info(standings);*/
-
-            //league settings
-
-            //league scoreboard
-
-            //nfl teams
-
-
-//			TODO retrieve replacement values from last year
         } catch (Exception e) {
             log.error(e);
         }
     }
 
-    private <T> T executeRequest(String urlContext, Class<T> type) throws YahooFantasyServiceException, IOException, ExecutionException, InterruptedException {
-        return gson.fromJson(service.request(generateUrl(urlContext)), type);
+    private void rosterData(UserGameTeam season) throws YahooFantasyApiInteractionManager.YahooFantasyServiceException, IOException, ExecutionException, InterruptedException {
+        String response = service.request(generateUrl(String.format("/fantasy/v2/team/%s/roster;week=1", season.getTeamKey())));
+        log.info(response);
     }
 
-    private BigDecimal getAverageWinningScore(int year) throws YahooFantasyServiceException, IOException, ExecutionException, InterruptedException {
-        UserGameTeamList userGameTeamList = executeRequest(UserGameTeamList.URL, UserGameTeamList.class);
+    // LeagueDetails/LeagueInfo/LeagueSettings/LeagueStandings
 
-        UserGameTeam season =
-                userGameTeamList.getUserGameTeams()
-                        .stream()
-                        .filter(each -> each.getGameCode().equals("nfl") && each.getGameSeason().equals(Integer.toString(year)))
-                        .findAny()
-                        .orElseThrow();
+    // Matchups / Matchup / MatchupDetails / MatchupTeam
 
-        LeagueStandings standings = executeRequest(String.format("/fantasy/v2/league/%s;out=standings", season.getGameLeagueCode()), LeagueStandings.class);
+    // Players / Player / Team (NFL?)
 
-        Matchups yearMatches = null;
-        for (YahooTeam team : standings.getStandings().values()) {
-            Matchups matchups = executeRequest(
-                    String.format("/fantasy/v2/team/%s.t.%s/matchups", season.getGameLeagueCode(), team.getId()),
-                    Matchups.class
-            );
-            yearMatches = (yearMatches == null ? matchups : yearMatches.add(matchups));
-            TimeUnit.SECONDS.sleep(5);
-        }
+    // UserGameTeamList / UserGameTeam / YahooTeam
 
-        assert yearMatches != null;
-        List<BigDecimal> winningScores = yearMatches.getMatchups().stream().map(Matchup::getWinningScore).toList();
-        if (!winningScores.isEmpty()) {
-            BigDecimal sum = winningScores.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
-            return sum.divide(new BigDecimal(winningScores.size()), 1, RoundingMode.HALF_UP);
-        }
-        return BigDecimal.ZERO;
-    }
+    // Roster Positions / Roster Position
 
-    private String generateUrl(@NonNull String path) {
-        if (path.isBlank()) {
-            throw new IllegalArgumentException("path is a required argument");
-        }
-        return String.format("https://fantasysports.yahooapis.com%s?response=json", path);
-    }
+    // YahooAppInfo / YahooFantasyService / YahooFantasyServiceException / YahooUtils / BearerToken
 
     public static void main(String[] args) {
         new Client().run();
