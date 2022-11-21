@@ -9,14 +9,26 @@ import java.util.concurrent.TimeUnit;
 
 class LeagueStandingsQueryService extends YahooApiQueryService<LeagueStandings> {
 
+    private final String leagueKey;
+
+    LeagueStandingsQueryService(String leagueKey) {
+        super();
+        this.leagueKey = leagueKey;
+    }
+
     @Override
     Class<LeagueStandings> clazz() {
-        return null;
+        return LeagueStandings.class;
     }
 
     @Override
     String URL() {
-        return null;
+        return "/fantasy/v2/league/%s;out=standings";
+    }
+
+    @Override
+    String getQueryCode() {
+        return this.leagueKey;
     }
 
     // TODO move out of query service into some calculation service/client

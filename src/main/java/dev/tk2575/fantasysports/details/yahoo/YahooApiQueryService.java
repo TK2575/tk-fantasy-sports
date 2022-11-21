@@ -22,8 +22,11 @@ public abstract class YahooApiQueryService<T extends YahooFantasyObject> {
 
     abstract String URL();
 
-    T getResults(String gameLeagueCode) throws YahooFantasyApiInteractionManager.YahooFantasyServiceException, IOException, ExecutionException, InterruptedException {
-        var json = apiManager.request(apiManager.generateUrl(String.format(URL(), gameLeagueCode)));
+    abstract String getQueryCode();
+
+    T getResults() throws YahooFantasyApiInteractionManager.YahooFantasyServiceException, IOException, ExecutionException, InterruptedException {
+        String url = apiManager.generateUrl(String.format(URL(), getQueryCode()));
+        var json = apiManager.request(url);
         return gson.fromJson(json, clazz());
     }
 }

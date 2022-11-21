@@ -6,16 +6,17 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PlayersTest {
 
-	static String rawJson;
+	static String playersJson;
+	static String playersWithRosterPositionJson;
 
 	static {
 		try {
-			rawJson = TestUtils.readTestResourceFileToString("Players.json");
+			playersJson = TestUtils.readTestResourceFileToString("Players.json");
+			playersWithRosterPositionJson = TestUtils.readTestResourceFileToString("PlayersWithRosterPosition.json");
 		}
 		catch (IOException e) {
 			e.printStackTrace();
@@ -23,10 +24,10 @@ class PlayersTest {
 	}
 
 	@Test
-	void testDeserialization() {
-		assertNotNull(rawJson);
+	void testDeserializationWithoutRosterPosition() {
+		assertNotNull(playersJson);
 
-		Players players = YahooUtils.getGson().fromJson(rawJson, Players.class);
+		Players players = YahooUtils.getGson().fromJson(playersJson, Players.class);
 		assertNotNull(players);
 
 		List<Player> playersList = players.getPlayers();
@@ -34,8 +35,24 @@ class PlayersTest {
 		for (Player player : playersList) {
 			assertTrue(player.getKey() != null && !player.getKey().isBlank());
 			assertTrue(player.getFullName() != null && !player.getFullName().isBlank());
+			assertNull(player.getRosterPosition());
 		}
+	}
 
+	@Test
+	void testDeserializationWithRosterPosition() {
+		assertNotNull(playersWithRosterPositionJson);
+
+		Players playersWithRosterPosition = YahooUtils.getGson().fromJson(playersWithRosterPositionJson, Players.class);
+		assertNotNull(playersWithRosterPosition);
+
+		List<Player> players = playersWithRosterPosition.getPlayers();
+		assertTrue(players != null && !players.isEmpty());
+		for (Player player : players) {
+			assertTrue(player.getKey() != null && !player.getKey().isBlank());
+			assertTrue(player.getFullName() != null && !player.getFullName().isBlank());
+			assertNotNull(player.getRosterPosition());
+		}
 	}
 
 }

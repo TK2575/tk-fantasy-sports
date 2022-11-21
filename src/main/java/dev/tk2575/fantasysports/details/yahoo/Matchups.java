@@ -4,8 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
 import java.math.BigDecimal;
@@ -15,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @ToString
-public class Matchups {
+public class Matchups implements YahooFantasyObject {
     static final String URL = "/fantasy/v2/league/%s.t.%s/matchups";
 
     private final Map<String, Matchup> matchups = new HashMap<>();

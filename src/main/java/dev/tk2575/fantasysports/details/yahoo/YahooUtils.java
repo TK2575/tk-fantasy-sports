@@ -18,10 +18,12 @@ public class YahooUtils {
 
 	private static Gson gson() {
 		return new GsonBuilder()
+				.registerTypeAdapter(Players.class, Players.deserializer())
+				.registerTypeAdapter(Player.class, Player.deserializer())
+
 				.registerTypeAdapter(UserGameTeamList.class, UserGameTeamList.deserializer())
 				.registerTypeAdapter(LeagueStandings.class, LeagueStandings.deserializer())
 				.registerTypeAdapter(DraftResults.class, DraftResults.deserializer())
-				.registerTypeAdapter(Players.class, Players.deserializer())
 				.registerTypeAdapter(LeagueDetails.class, LeagueDetails.deserializer())
 				.registerTypeAdapter(RosterPositions.class, RosterPositions.deserializer())
 				.registerTypeAdapter(Matchups.class, Matchups.deserializer())
