@@ -1,5 +1,8 @@
 package dev.tk2575.fantasysports.details.sleeper;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Service
 @Log4j2
+@NoArgsConstructor(access = AccessLevel.NONE)
 public class SleeperApiManager {
 
     private static SleeperApiManager instance;
@@ -30,7 +34,7 @@ public class SleeperApiManager {
 
     static SleeperApiManager getInstance() { return instance; }
 
-    String request(String urlString) throws SleeperApiServiceException {
+    String request(@NonNull String urlString) throws SleeperApiServiceException {
         try {
             var request = HttpRequest.newBuilder().uri(new URI(urlString)).GET().timeout(Duration.of(10, SECONDS)).build();
             var client = HttpClient.newHttpClient();

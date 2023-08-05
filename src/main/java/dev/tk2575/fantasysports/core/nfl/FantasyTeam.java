@@ -5,7 +5,7 @@ import lombok.*;
 import java.util.Set;
 
 @Getter
-public class Team {
+public class FantasyTeam {
 	private int season;
 	private String name;
 	private Manager manager;

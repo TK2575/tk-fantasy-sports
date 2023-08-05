@@ -9,12 +9,11 @@ import java.util.List;
 @ToString
 @EqualsAndHashCode
 @Getter
-class Player {
+class SleeperPlayer {
     private long yearsExp;
     private String team;
     private Position position;
     private Long newsUpdated;
-    private Metadata metadata;
     private String lastName;
     private String injuryStatus;
     private Object injuryStartDate;

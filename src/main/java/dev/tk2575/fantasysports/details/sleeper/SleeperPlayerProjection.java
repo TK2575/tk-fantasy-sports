@@ -9,15 +9,15 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 @Getter
-class PlayerProjection {
+class SleeperPlayerProjection {
     private Object week;
     private String team;
     private Map<String, Double> stats;
-    private Sport sport;
+    private String sport;
     private String seasonType;
     private String season;
-    private String playerID;
-    private Player player;
+    private String playerId;
+    private SleeperPlayer player;
     private Object opponent;
     private long lastModified;
     private String gameID;

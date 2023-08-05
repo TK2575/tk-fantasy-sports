@@ -8,8 +8,8 @@ import java.math.BigDecimal;
 public class NflMatchup {
 	private int week;
 
-	private Team team;
-	private Team opponent;
+	private FantasyTeam fantasyTeam;
+	private FantasyTeam opponent;
 
 	private boolean win;
 	private boolean playoffs;
