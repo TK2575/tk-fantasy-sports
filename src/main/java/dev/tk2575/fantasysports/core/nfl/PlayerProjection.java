@@ -17,8 +17,8 @@ public class PlayerProjection {
     private int week;
     private int season;
     
-    private BigDecimal points = BigDecimal.ZERO;
-    private BigDecimal projectedPrice = BigDecimal.ZERO;
+    private BigDecimal points;
+    private BigDecimal projectedPrice;
     
     private PlayerStats stats;
 }
