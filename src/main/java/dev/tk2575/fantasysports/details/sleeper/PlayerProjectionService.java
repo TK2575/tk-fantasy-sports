@@ -1,29 +1,22 @@
 package dev.tk2575.fantasysports.details.sleeper;
 
-import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import dev.tk2575.fantasysports.core.nfl.PlayerProjection;
 import dev.tk2575.fantasysports.core.nfl.Player;
+import dev.tk2575.fantasysports.core.nfl.PlayerProjection;
 import dev.tk2575.fantasysports.core.nfl.PlayerStats;
 
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class PlayerProjectionService {
-    
-    private final Gson gson = new GsonBuilder()
-            .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-            .create();
+public class PlayerProjectionService implements SleeperService {
+    private final Gson gson = getGson();
     
     private final SleeperApiManager api = SleeperApiManager.getInstance();
     
-    public List<PlayerProjection> getPreseasonCanonicalProjections(int season) throws SleeperApiManager.SleeperApiServiceException {
+    public List<PlayerProjection> getPreseasonCanonicalProjections(int season) throws SleeperApiManager.SleeperApiServiceException, IOException {
         Map<String, SleeperPlayerProjection> positionProjections = getAllPositionProjections(season);
         Map<String, BigDecimal> auctionValues = getAuctionValues(season);
         List<PlayerProjection> results = new ArrayList<>();
@@ -33,6 +26,10 @@ public class PlayerProjectionService {
             BigDecimal auctionValue = auctionValues.getOrDefault(playerId, BigDecimal.ZERO);
             SleeperPlayerProjection projection = projectionEntry.getValue();
             Position position = projection.getPlayer().getPosition();
+            List<String> positions = projection.getPlayer().getFantasyPositions().stream().map(Position::toValue).toList();
+            if (position == null && !positions.isEmpty()) {
+                position = Position.forValue(positions.get(0));
+            }
             
             var player = Player.builder()
                     .id(playerId)
@@ -44,7 +41,7 @@ public class PlayerProjectionService {
             
             var result = PlayerProjection.builder()
                     .position(position == null ? null : position.toValue())
-                    .positions(projection.getPlayer().getFantasyPositions().stream().map(Position::toValue).toList())
+                    .positions(positions)
                     .player(player)
                     .nflTeam(projection.getPlayer().getTeam())
                     .week(0)
@@ -124,6 +121,7 @@ public class PlayerProjectionService {
     public static void main(String[] args) throws Exception {
         var service = new PlayerProjectionService();
         Map<String, SleeperPlayerProjection> projections = service.getProjections(Position.RB, 2023);
-        projections.values().stream().findFirst().ifPresent(System.out::println);
+        List<String> statKeys = projections.values().stream().map(SleeperPlayerProjection::getStats).map(Map::keySet).flatMap(Set::stream).distinct().sorted().toList();
+        System.out.println(statKeys);
     }
 }

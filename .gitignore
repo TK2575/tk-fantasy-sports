@@ -7,6 +7,7 @@ target/
 mvnw
 mvnw.cmd
 temp/
+src/main/resources/application.properties
 
 ### STS ###
 .apt_generated

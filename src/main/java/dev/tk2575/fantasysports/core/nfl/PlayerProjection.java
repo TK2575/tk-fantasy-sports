@@ -3,12 +3,13 @@ package dev.tk2575.fantasysports.core.nfl;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Getter
 @ToString
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PlayerProjection {
     private String position;
     private List<String> positions;
@@ -21,4 +22,9 @@ public class PlayerProjection {
     private BigDecimal projectedPrice;
     
     private PlayerStats stats;
+    
+    public BigDecimal getPointsPerGame() {
+        //assumes 17 games in regular season
+        return this.points.divide(new BigDecimal(17), 2, RoundingMode.HALF_UP);
+    }
 }
