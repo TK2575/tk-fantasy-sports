@@ -8,6 +8,7 @@ mvnw
 mvnw.cmd
 temp/
 src/main/resources/application.properties
+*.tsv
 
 ### STS ###
 .apt_generated
