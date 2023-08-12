@@ -10,7 +10,8 @@ public class LeagueService implements SleeperService {
     
     public LeagueSettings getLeagueSettings(String leagueId) throws SleeperApiManager.SleeperApiServiceException {
         String url = String.format("https://api.sleeper.app/v1/league/%s", leagueId);
-        return gson.fromJson(api.request(url), LeagueSettings.class);
+        String response = api.request(url);
+        return gson.fromJson(response, LeagueSettings.class);
     }
 
     public static void main(String[] args) throws Exception {

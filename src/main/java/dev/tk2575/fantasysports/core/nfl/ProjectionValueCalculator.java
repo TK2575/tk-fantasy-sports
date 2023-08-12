@@ -2,6 +2,7 @@ package dev.tk2575.fantasysports.core.nfl;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -9,30 +10,173 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
+@Log4j2
 public class ProjectionValueCalculator {
-    
-    private static final Set<String> flexEligiblePositions = Set.of("RB", "WR", "TE");
     
     private final List<PlayerProjection> projections;
     
-    public List<PositionPointValue> calculate(int teams, List<String> positions) {
-        //calculate position replacement ranks
-        Map<String,Long> rosterSlotsByPosition = positions.stream()
+    public ProjectionCalculationResult calculate(int teams, List<String> positions) {
+        Map<String,Long> rosterSlotCountByPosition = positions.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
         
-        final List<PlayerRank> rankings = computePlayerRankings(teams, rosterSlotsByPosition);
+        final List<PlayerRank> playerRanks = computePlayerRankings(rosterSlotCountByPosition);
+        List<PositionPointValue> positionValues = computePosPointValuesByIndex(playerRanks, teams, rosterSlotCountByPosition);
+        List<PlayerProjectionValue> playerValues = computePlayerValues(playerRanks, positionValues, rosterSlotCountByPosition);
+        return new ProjectionCalculationResult(playerValues, positionValues);
+    }
 
-        List<PositionPointValue> positionPointValues = computePositionPointValue(rankings, teams, rosterSlotsByPosition);
-        positionPointValues.addAll(computeFlexPointValue(rankings, rosterSlotsByPosition.get("FLEX")));
-
-        //identify point values at each ranking
+    private List<PlayerProjectionValue> computePlayerValues(List<PlayerRank> playerRanks, List<PositionPointValue> positionValues, Map<String, Long> rosterSlotCountByPosition) {
+        Map<String, BigDecimal> replacementValues = 
+                positionValues.stream()
+                        .collect(Collectors.toMap(PositionPointValue::getPosition, PositionPointValue::getReplacement));
         
-        //compute value over replacement for each player
-        return positionPointValues;
+        return playerRanks.stream().map(p -> {
+            String positionKey = p.getPosition() + (rosterSlotCountByPosition.get(p.getPosition()) > 1 ? "1" : ""); //PositionPointValues may have enumerated positions
+            BigDecimal vorp = p.getPointsPerGame().subtract(replacementValues.get(positionKey));
+            BigDecimal vorf = p.isFlexEligible() ? p.getPointsPerGame().subtract(replacementValues.get("FLEX1")) : vorp;
+            return new PlayerProjectionValue(p, vorp, vorf);
+        }).toList();
+    }
+
+    private List<PositionPointValue> computePosPointValuesByIndex(List<PlayerRank> rankings, int teams, Map<String, Long> rosterSlotsByPosition) {
+        int flexRosterSpots = rosterSlotsByPosition.get("FLEX").intValue();
+        List<PlayerRank> replacementFlexPlayers =
+                rankings.stream()
+                        .filter(PlayerRank::isFlexEligible)
+                        .filter(r -> !isStartingAtPosition(r.getPositionRank(), teams, rosterSlotsByPosition.get(r.getPosition())))
+                        .toList();
+        
+        Map<String,List<BigDecimal>> bestValuesByPosition = 
+                getBestValuesByPosition(rosterSlotsByPosition, rankings, flexRosterSpots, replacementFlexPlayers);
+        Map<String,List<BigDecimal>> replacementValuesByPosition = 
+                getReplacementValuesByPosition(rankings, teams, flexRosterSpots, replacementFlexPlayers, rosterSlotsByPosition);
+
+        List<PositionPointValue> results = new ArrayList<>();
+        for (String position : rosterSlotsByPosition.keySet()) {
+            if (position.equals("BN")) continue;
+            
+            assert(bestValuesByPosition.containsKey(position));
+            List<BigDecimal> bestPoints = bestValuesByPosition.get(position);
+            
+            assert(replacementValuesByPosition.containsKey(position));
+            List<BigDecimal> replacementPoints = replacementValuesByPosition.get(position);
+            
+            assert(bestPoints.size() == replacementPoints.size());
+            for (int i = 0; i < bestPoints.size(); i++) {
+                PositionPointValue ppv = 
+                        new PositionPointValue(
+                                position + (rosterSlotsByPosition.get(position) > 1 ? i+1 : ""), 
+                                bestPoints.get(i), 
+                                replacementPoints.get(i)
+                        );
+                results.add(ppv);
+            }
+        }
+        return results;
+    }
+
+    private Map<String, List<BigDecimal>> getReplacementValuesByPosition(List<PlayerRank> rankings, int teams, int flexRosterSpots, List<PlayerRank> replacementPlayersArg, Map<String, Long> rosterSlotsByPosition) {
+        Map<String, List<BigDecimal>> replacementValuesByPosition = getFlexEligibleReplacementValues(teams, flexRosterSpots, replacementPlayersArg, rosterSlotsByPosition);
+        
+        for (Map.Entry<String, Long> positionCount : rosterSlotsByPosition.entrySet()) {
+            final String position = positionCount.getKey();
+            if (List.of("BN","FLEX").contains(position) || PlayerProjectionInterface.getFlexPositions().contains(position)) {
+                continue;
+            }
+
+            int positionRosterSlots = positionCount.getValue().intValue();
+            for (int i = 1; i <= positionRosterSlots; i++) {
+                int eye = i;
+                var best = rankings.stream()
+                        .filter(r -> r.getPosition().equals(position) && 
+                                r.getPositionRank() == (teams * positionRosterSlots) + eye)
+                        .findFirst().orElseThrow().getPointsPerGame();
+                replacementValuesByPosition.merge(position, List.of(best), (a,b) -> {
+                    List<BigDecimal> merged = new ArrayList<>(a);
+                    merged.addAll(b);
+                    return merged;
+                });
+            }
+        }
+        
+        return replacementValuesByPosition;
     }
     
-    //TODO refactor all below for complexity and shared code, ideally non-looping and non-branching
-    private List<PlayerRank> computePlayerRankings(int teams, Map<String,Long> rosterSlotsByPosition) {
+    private Map<String, List<BigDecimal>> getFlexEligibleReplacementValues(int teams, int flexRosterSpots, List<PlayerRank> replacementPlayersArg, Map<String, Long> rosterSlotsByPositionArg) {
+        Map<String, List<BigDecimal>> replacementValuesByPosition = new HashMap<>();
+        int flexStarterCount = flexRosterSpots * teams;
+        List<PlayerRank> replacementPlayers = new ArrayList<>(replacementPlayersArg);
+        replacementPlayers.subList(0, flexStarterCount).clear();
+
+        Map<String, Long> rosterSlotsByPosition = new HashMap<>();
+        for (Map.Entry<String, Long> posEntry : rosterSlotsByPositionArg.entrySet()) {
+            String pos = posEntry.getKey();
+            if (PlayerProjectionInterface.getFlexPositions().contains(pos) || pos.equals("FLEX")) {
+                rosterSlotsByPosition.put(pos, posEntry.getValue());
+            }
+        }
+
+        int i = 0;
+        while (!rosterSlotsByPosition.isEmpty()) {
+            PlayerRank player = replacementPlayers.get(i);
+            var points = player.getPointsPerGame();
+            String position = player.getPosition();
+            if (!rosterSlotsByPosition.containsKey(position)) {
+                position = "FLEX";
+            }
+            if (rosterSlotsByPosition.containsKey(position)) {
+                var positionRosterSlots = rosterSlotsByPosition.get(position);
+                if (positionRosterSlots <= 1) {
+                    rosterSlotsByPosition.remove(position);
+                }
+                else {
+                    rosterSlotsByPosition.put(position, positionRosterSlots-1);
+                }
+                replacementValuesByPosition.merge(position, List.of(points), (a,b) -> {
+                    List<BigDecimal> merged  = new ArrayList<>(a);
+                    merged.addAll(b);
+                    return merged;
+                });
+            }
+            i++;
+        }
+        return replacementValuesByPosition;
+    }
+
+    private Map<String, List<BigDecimal>> getBestValuesByPosition(Map<String,Long> rosterSlotsByPosition, 
+                                                                  List<PlayerRank> rankings, int flexRosterSpots, 
+                                                                  List<PlayerRank> replacementFlexPlayers) {
+        Map<String, List<BigDecimal>> bestValuesByPosition = new HashMap<>();
+        for (Map.Entry<String, Long> positionCount : rosterSlotsByPosition.entrySet()) {
+            final String position = positionCount.getKey();
+            if (List.of("BN","FLEX").contains(position)) continue;
+
+            int positionRosterSlots = positionCount.getValue().intValue();
+            for (int i = 1; i <= positionRosterSlots; i++) {
+                int eye = i;
+                var best = rankings.stream()
+                        .filter(r -> r.getPosition().equals(position) && r.getPositionRank() == eye)
+                        .findFirst().orElseThrow().getPointsPerGame();
+                bestValuesByPosition.merge(position, List.of(best), (a,b) -> {
+                    List<BigDecimal> merged = new ArrayList<>(a);
+                    merged.addAll(b);
+                    return merged;
+                });
+            }
+        }
+
+        List<BigDecimal> bestFlexPPG = 
+                replacementFlexPlayers.subList(0, flexRosterSpots).stream().map(PlayerRank::getPointsPerGame).toList();
+        bestValuesByPosition.put("FLEX", bestFlexPPG);
+
+        return bestValuesByPosition;
+    }
+
+    private boolean isStartingAtPosition(int positionRank, int teams, Long slots) {
+        return positionRank <= teams * slots;
+    }
+    
+    private List<PlayerRank> computePlayerRankings(Map<String,Long> rosterSlotsByPosition) {
         Map<String,Integer> positionRank = new HashMap<>();
         //set ranking cursor for all positions
         rosterSlotsByPosition.keySet().stream().filter(p -> !List.of("FLEX","BN").contains(p)).forEach(p -> positionRank.put(p, 0));
@@ -43,8 +187,6 @@ public class ProjectionValueCalculator {
         List<PlayerRank> rankings = new ArrayList<>();
         int overallRank = 0;
         int flexRank = 0;
-        int flexStarterRank = 0;
-        int replacementRank = 0;
         int posRank;
         
         for (PlayerProjection player : sortedPlayers) {
@@ -55,115 +197,14 @@ public class ProjectionValueCalculator {
             positionRank.put(position, posRank);
             overallRank++;
             int thisFlexRank = 0;
-            int thisFlexStarterRank = 0;
-            int thisNonStarterRank = 0;
             
-            if (flexEligiblePositions.contains(position)) {
+            if (player.isFlexEligible()) {
                 flexRank++;
                 thisFlexRank = flexRank;
-                if (!isPositionStarter(posRank, teams, rosterSlotsByPosition.get(position))) {
-                    flexStarterRank++;
-                    thisFlexStarterRank = flexStarterRank;
-                    if (!isFlexStarter(overallRank, teams, rosterSlotsByPosition)) {
-                        replacementRank++;
-                        thisNonStarterRank = replacementRank;
-                    }
-                }
             }
-            rankings.add(new PlayerRank(player, overallRank, posRank, thisFlexRank, thisFlexStarterRank, thisNonStarterRank));
+            rankings.add(new PlayerRank(player, overallRank, posRank, thisFlexRank));
         }
         return rankings;
-    }
-
-    private List<PositionPointValue> computePositionPointValue(List<PlayerRank> rankings, int teams, Map<String, Long> rosterSlotsByPosition) {
-        List<PositionPointValue> positionPointValues = new ArrayList<>();
-
-        for (Map.Entry<String, Long> positionCount : rosterSlotsByPosition.entrySet()) {
-            final String position = positionCount.getKey();
-            if (List.of("BN","FLEX").contains(position)) continue;
-            int positionRosterSlots = positionCount.getValue().intValue();
-            
-            BigDecimal best =
-                    rankings.stream()
-                    .filter(r -> r.getPosition().equals(position) && r.getPositionRank() == 1)
-                    .findFirst().orElseThrow().getPointsPerGame();
-            Optional<PlayerRank> first = rankings.stream()
-                    .filter(r -> r.getPosition().equals(position) && r.getPositionRank() == (teams + 1))
-                    .findFirst();
-            if (first.isEmpty()) {
-                System.out.println("Found one!");
-            }
-            BigDecimal replacement =
-                    first.orElseThrow().getPointsPerGame(); //we want the best non-starter
-
-            if (positionRosterSlots == 1) {
-                positionPointValues.add(new PositionPointValue(position, best, replacement));
-            }
-            else {
-                for (int i = 1; i <= positionRosterSlots; i++) {
-                    var enumeratedPosition = String.format("%s%d", position, i);
-                    int eye = i;
-
-                    best = rankings.stream()
-                            .filter(r -> r.getPosition().equals(position) && r.getPositionRank() == eye)
-                            .findFirst().orElseThrow().getPointsPerGame();
-
-                    replacement = rankings.stream()
-                            .filter(r -> r.getPosition().equals(position) && r.getPositionRank() == ((teams * positionRosterSlots) + eye))
-                            .findFirst().orElseThrow().getPointsPerGame();
-                    positionPointValues.add(new PositionPointValue(enumeratedPosition, best, replacement));
-                }
-            }
-        }
-        return positionPointValues;
-    }
-    private List<PositionPointValue> computeFlexPointValue(List<PlayerRank> rankings, long rosterSlots) {
-        List<PositionPointValue> results = new ArrayList<>();
-
-        BigDecimal best = rankings.stream()
-                .filter(r -> flexEligiblePositions.contains(r.getPosition()) && r.getFlexStartingRank() == 1)
-                .findFirst().orElseThrow().getPointsPerGame();
-        
-        BigDecimal replacement = rankings.stream()
-                .filter(r -> flexEligiblePositions.contains(r.getPosition()) && r.getNonStarterRank() == 1)
-                .findFirst().orElseThrow().getPointsPerGame();
-        
-        if (rosterSlots == 1) {
-            results.add(new PositionPointValue("FLEX", best, replacement));
-        }
-        else {
-            for (int i = 1; i <= rosterSlots; i++) {
-                var enumeratedPosition = String.format("FLEX%d", i);
-                int eye = i;
-                
-                best = rankings.stream()
-                        .filter(r -> flexEligiblePositions.contains(r.getPosition()) && r.getFlexStartingRank() == eye)
-                        .findFirst().orElseThrow().getPointsPerGame();
-                
-                replacement = rankings.stream()
-                        .filter(r -> flexEligiblePositions.contains(r.getPosition()) && r.getNonStarterRank() == eye)
-                        .findFirst().orElseThrow().getPointsPerGame();
-                
-                results.add(new PositionPointValue(enumeratedPosition, best, replacement));
-            }
-        }
-
-        return results;
-    }
-
-    private boolean isFlexStarter(int overallRank, int teams, Map<String, Long> rosterSlotsByPosition) {
-        // those with an overall rank within the number of starting flex-eligible roster slots across all teams
-        long slots = 0;
-        for (String pos : flexEligiblePositions) {
-            slots = slots + rosterSlotsByPosition.get(pos);
-        }
-        slots = slots * teams;
-        return overallRank <= slots;
-    }
-
-    private boolean isPositionStarter(int posRank, int teams, long positionRosterSlots) {
-        //position starters are those with a positional rank within the number of starting roster slots across all teams
-        return posRank <= teams * positionRosterSlots;
     }
 
 

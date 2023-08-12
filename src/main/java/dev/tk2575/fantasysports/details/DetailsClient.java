@@ -1,9 +1,12 @@
 package dev.tk2575.fantasysports.details;
 
 import dev.tk2575.fantasysports.core.nfl.PlayerProjectionValue;
+import dev.tk2575.fantasysports.core.nfl.PositionPointValue;
+import dev.tk2575.fantasysports.core.nfl.ProjectionCalculationResult;
 import dev.tk2575.fantasysports.core.nfl.ProjectionValueCalculator;
 import dev.tk2575.fantasysports.details.filewriter.PlayerProjectionValueWriter;
 import dev.tk2575.fantasysports.details.filewriter.PlayerProjectionWriter;
+import dev.tk2575.fantasysports.details.filewriter.PositionPointValueWriter;
 import dev.tk2575.fantasysports.details.sleeper.LeagueService;
 import dev.tk2575.fantasysports.details.sleeper.LeagueSettings;
 import dev.tk2575.fantasysports.details.sleeper.PlayerProjectionService;
@@ -34,13 +37,16 @@ public class DetailsClient {
         
         var projections = new PlayerProjectionService().getPreseasonCanonicalProjections(2023);
         LeagueSettings leagueSettings = new LeagueService().getLeagueSettings(appProps.getProperty("sleeper.league-id"));
+
+        ProjectionCalculationResult calculation = 
+                new ProjectionValueCalculator(projections)
+                        .calculate(leagueSettings.getTotalRosters(), leagueSettings.getRosterPositions());
         
-/*        List<PlayerProjectionValue> projectionValues = */
-        System.out.println(new ProjectionValueCalculator(projections)
-                        .calculate(leagueSettings.getTotalRosters(), leagueSettings.getRosterPositions()));
+        new PlayerProjectionValueWriter(calculation.getPlayers())
+                .writeToFile(String.format("projections-%s.tsv", LocalDate.now()), "\t");
         
-        /*new PlayerProjectionWriter(projections)
-                .writeToFile(String.format("projections-%s.tsv", LocalDate.now()), "\t");*/
+        new PositionPointValueWriter(calculation.getPositions())
+                .writeToFile(String.format("positions-%s.tsv", LocalDate.now()), "\t");
     }
     
 }

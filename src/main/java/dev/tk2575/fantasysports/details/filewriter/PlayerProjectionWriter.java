@@ -1,22 +1,24 @@
 package dev.tk2575.fantasysports.details.filewriter;
 
 import dev.tk2575.fantasysports.core.nfl.PlayerProjection;
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-@RequiredArgsConstructor
 public class PlayerProjectionWriter implements FileWriterDetail {
     
     private final List<PlayerProjection> projections;
-    
+
+    public PlayerProjectionWriter(List<PlayerProjection> projections) {
+       List<PlayerProjection> sortedProjections = new ArrayList<>(projections);
+       sortedProjections.sort(Comparator.comparing(PlayerProjection::getPoints).reversed());
+       this.projections = sortedProjections;
+    } 
+
     public List<String> getDelimitedRows(CharSequence delimiter) {
         List<String[]> content = new ArrayList<>();
         content.add(getHeaders());
-        this.projections.sort(Comparator.comparing(PlayerProjection::getPoints).reversed());
         content.addAll(this.projections.stream().map(this::convertToRow).toList());
         return content.stream().map(row -> String.join(delimiter, row)).toList();
     }
@@ -27,7 +29,6 @@ public class PlayerProjectionWriter implements FileWriterDetail {
                 "firstName",
                 "lastName",
                 "position",
-                "positions",
                 "season",
                 "team",
                 "week",
@@ -43,7 +44,6 @@ public class PlayerProjectionWriter implements FileWriterDetail {
                 projection.getPlayer().getFirstName(),
                 projection.getPlayer().getLastName(),
                 projection.getPosition(),
-                String.join(",", projection.getPositions()),
                 String.valueOf(projection.getSeason()),
                 projection.getNflTeam(),
                 String.valueOf(projection.getWeek()),

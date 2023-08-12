@@ -12,6 +12,7 @@ public interface FileWriterDetail {
         }
     }
     
+    //TODO move to default
     List<String> getDelimitedRows(CharSequence delimiter);
     
     String[] getHeaders();

@@ -1,39 +1,45 @@
 package dev.tk2575.fantasysports.core.nfl;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @ToString
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class PlayerRank {
-    
-    private final String playerId;
+public class PlayerRank implements PlayerRankingInterface {
     private final String position;
-    private final BigDecimal points;
-    private final BigDecimal pointsPerGame;
-    private final BigDecimal price;
-    private final int positionRank;
-    private final int overallRank; //across all positions
-    private final int flexRank; //rank across all flex positions
-    private final int flexStartingRank; //not good enough to start in their actual position but good enough to start in flex
-    private final int nonStarterRank; //replacement level flex ranking
+    private final List<String> positions;
+	private final Player player;
+    private final String nflTeam;
+    private final int week;
+    private final int season;
     
-    public PlayerRank(PlayerProjection player, int overallRank, int positionRank, int flexRank, int flexStartingRank, int nonStarterRank) {
-        this.playerId = player.getPlayer().getId();
+    private final BigDecimal points;
+    private final BigDecimal projectedPrice;
+    
+    private final PlayerStats stats;
+    
+    private final int positionRank;
+    private final int overallRank; 
+    private final int flexRank;
+    
+    public PlayerRank(PlayerProjection player, int overallRank, int positionRank, int flexRank) {
         this.position = player.getPosition();
+        this.positions = player.getPositions();
+        this.player = player.getPlayer();
+        this.nflTeam = player.getNflTeam();
+        this.week = player.getWeek();
+        this.season = player.getSeason();
         this.points = player.getPoints();
-        this.pointsPerGame = player.getPointsPerGame();
-        this.price = player.getProjectedPrice();
+        this.projectedPrice = player.getProjectedPrice();
+        this.stats = player.getStats();
+        
         this.positionRank = positionRank;
         this.overallRank = overallRank;
         this.flexRank = flexRank;
-        this.flexStartingRank = flexStartingRank;
-        this.nonStarterRank = nonStarterRank;
     }
+    
     
 }

@@ -10,7 +10,7 @@ import java.util.List;
 @ToString
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlayerProjection {
+public class PlayerProjection implements PlayerProjectionInterface {
     private String position;
     private List<String> positions;
 	private Player player;
