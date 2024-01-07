@@ -121,7 +121,11 @@ public class PlayerProjectionService implements SleeperService {
     public static void main(String[] args) throws Exception {
         var service = new PlayerProjectionService();
         Map<String, SleeperPlayerProjection> projections = service.getProjections(Position.RB, 2023);
-        List<String> statKeys = projections.values().stream().map(SleeperPlayerProjection::getStats).map(Map::keySet).flatMap(Set::stream).distinct().sorted().toList();
+        List<String> statKeys = projections.values().stream()
+            .map(SleeperPlayerProjection::getStats)
+            .map(Map::keySet)
+            .flatMap(Set::stream)
+            .distinct().sorted().toList();
         System.out.println(statKeys);
     }
 }

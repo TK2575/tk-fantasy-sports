@@ -21,4 +21,8 @@ class SleeperPlayer {
     private Object injuryBodyPart;
     private String firstName;
     private List<Position> fantasyPositions;
+    
+    String getFullName() {
+        return String.format("%s %s", firstName, lastName);
+    }
 }

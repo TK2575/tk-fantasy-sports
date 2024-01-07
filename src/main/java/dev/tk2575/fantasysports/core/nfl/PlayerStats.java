@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlayerStats {
-    private long passAttempts;
+	private long passAttempts;
 	private long passCompletions;
 	private long passYards;
 	private long passTds;
