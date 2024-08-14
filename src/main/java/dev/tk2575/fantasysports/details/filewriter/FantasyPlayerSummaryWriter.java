@@ -13,14 +13,29 @@ public class FantasyPlayerSummaryWriter implements FileWriterDetail {
   public FantasyPlayerSummaryWriter(List<FantasyPlayerSummary> stats) {
     List<FantasyPlayerSummary> sortedStats = new ArrayList<>(stats);
     sortedStats.sort(Comparator.comparing(FantasyPlayerSummary::getPlayer)
-        .thenComparing(FantasyPlayerSummary::getWeeksStarted).reversed());
+        .thenComparing(FantasyPlayerSummary::getWeeksStarted, Comparator.reverseOrder())
+        .thenComparing(FantasyPlayerSummary::getTotalPointsWhenStarted, Comparator.reverseOrder()));
     this.stats = sortedStats;
   }
 
 
   @Override
   public List<String> getDelimitedRows(CharSequence delimiter) {
-    return null;
+    List<String[]> content = new ArrayList<>();
+    content.add(getHeaders());
+    content.addAll(this.stats.stream().map(this::convertToRow).toList());
+    return content.stream().map(row -> String.join(delimiter, row)).toList();
+  }
+
+  private String[] convertToRow(FantasyPlayerSummary stat) {
+    return new String[] {
+        stat.getPlayer(),
+        stat.getPosition(),
+        stat.getTeam(),
+        String.valueOf(stat.getWeeksStarted()),
+        stat.getMedianPointsWhenStarted().toString(),
+        stat.getTotalPointsWhenStarted().toString()
+    };
   }
 
   @Override
@@ -29,8 +44,9 @@ public class FantasyPlayerSummaryWriter implements FileWriterDetail {
         "player",
         "position",
         "team",
-        "weeksStarted",
-        "pointsWhenStarted"
+        "weeks_started",
+        "median_started_points",
+        "total_started_points"
     };
   }
 }

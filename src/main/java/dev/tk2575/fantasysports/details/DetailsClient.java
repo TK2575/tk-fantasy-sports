@@ -17,6 +17,7 @@ import dev.tk2575.fantasysports.details.sleeper.SleeperClient;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -37,16 +38,16 @@ public class DetailsClient {
         return appProps;
     }
     public static void main(String[] args) throws Exception {
-//        Properties appProps = getApplicationProperties();
-//        String leagueId = appProps.getProperty("sleeper.league-id");
-
-        String leagueId = "926160489745387520";
-        generateDraftPrepArtifacts(leagueId);
+        Properties appProps = getApplicationProperties();
+        String leagueId = appProps.getProperty("sleeper.league-id");
+        
+        generatePerformanceArtifacts(leagueId);
     }
     
-    private static void generatePerformanceArtifacts(String leagueId) throws Exception {
-        //TODO all weeks
-        List<FantasyPlayerWeek> weeklyPlayerStats = SleeperClient.getMatchups(leagueId, 1);
+    private static void generatePerformanceArtifacts(String leagueId) 
+        throws SleeperApiManager.SleeperApiServiceException, IOException {
+        List<FantasyPlayerWeek> weeklyPlayerStats = SleeperClient.getMatchups(leagueId);
+        
         new FantasyPlayerWeekWriter(weeklyPlayerStats)
                 .writeToFile(String.format("performance-%s.tsv", LocalDate.now()), "\t");
 

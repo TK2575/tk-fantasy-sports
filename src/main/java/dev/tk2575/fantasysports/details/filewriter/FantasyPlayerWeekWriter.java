@@ -14,10 +14,11 @@ public class FantasyPlayerWeekWriter implements FileWriterDetail {
     List<FantasyPlayerWeek> sortedStats = new ArrayList<>(stats);
     sortedStats.sort(Comparator.comparing(FantasyPlayerWeek::getWeek)
         .thenComparing(FantasyPlayerWeek::getFantasyTeamName)
+        .thenComparing(FantasyPlayerWeek::isStarted, Comparator.reverseOrder())
+        .thenComparing(FantasyPlayerWeek::getPoints, Comparator.reverseOrder())
         .thenComparing(FantasyPlayerWeek::getPosition)
-        .thenComparing(FantasyPlayerWeek::isStarted)
         .thenComparing(FantasyPlayerWeek::getPlayer));
-    this.stats = stats;
+    this.stats = sortedStats;
   }
 
   @Override

@@ -68,9 +68,9 @@ public class MatchupService implements SleeperService {
     }
 
     public static void main(String[] args) throws Exception {
-        Properties appProps = getApplicationProperties();
-        String leagueId = appProps.getProperty("sleeper.league-id");
-        new MatchupService().getRawMatchups(leagueId, 1).forEach(System.out::println);
+        String leagueId = getApplicationProperties().getProperty("sleeper.league-id");
+        var rawMatchups = new MatchupService().getRawMatchups(leagueId, 19);
+        System.out.println(rawMatchups.isEmpty());
     }
     
 }
