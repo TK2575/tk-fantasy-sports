@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class PlayerTest {
+class CanonicalPlayerTest {
 
     static String playerJson;
     static String playerWithRosterPositionJson;

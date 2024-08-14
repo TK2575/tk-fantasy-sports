@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class PlayerServiceTest {
+class CanonicalPlayerServiceTest {
   
   @Test
   void testGetPlayers_deserialization() throws Exception {

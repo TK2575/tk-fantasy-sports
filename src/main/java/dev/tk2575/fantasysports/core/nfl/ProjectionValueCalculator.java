@@ -55,21 +55,20 @@ public class ProjectionValueCalculator {
         for (String position : rosterSlotsByPosition.keySet()) {
             if (position.equals("BN")) continue;
             
-            assert(bestValuesByPosition.containsKey(position));
-            List<BigDecimal> bestPoints = bestValuesByPosition.get(position);
+            List<BigDecimal> bestPoints = bestValuesByPosition.getOrDefault(position, List.of());
+            List<BigDecimal> replacementPoints = replacementValuesByPosition.getOrDefault(position, List.of());
             
-            assert(replacementValuesByPosition.containsKey(position));
-            List<BigDecimal> replacementPoints = replacementValuesByPosition.get(position);
-            
-            assert(bestPoints.size() == replacementPoints.size());
-            for (int i = 0; i < bestPoints.size(); i++) {
-                PositionPointValue ppv = 
+            // skip for missing positions like K or DST
+            if (!bestPoints.isEmpty() && bestPoints.size() == replacementPoints.size()) {
+                for (int i = 0; i < bestPoints.size(); i++) {
+                    PositionPointValue ppv =
                         new PositionPointValue(
-                                position + (rosterSlotsByPosition.get(position) > 1 ? i+1 : ""), 
-                                bestPoints.get(i), 
-                                replacementPoints.get(i)
+                            position + (rosterSlotsByPosition.get(position) > 1 ? i+1 : ""),
+                            bestPoints.get(i),
+                            replacementPoints.get(i)
                         );
-                results.add(ppv);
+                    results.add(ppv);
+                }
             }
         }
         return results;
@@ -80,22 +79,25 @@ public class ProjectionValueCalculator {
         
         for (Map.Entry<String, Long> positionCount : rosterSlotsByPosition.entrySet()) {
             final String position = positionCount.getKey();
-            if (List.of("BN","FLEX").contains(position) || PlayerProjectionInterface.getFlexPositions().contains(position)) {
+            if (PlayerProjectionInterface.getFlexPositions().contains(position)) {
                 continue;
             }
 
             int positionRosterSlots = positionCount.getValue().intValue();
             for (int i = 1; i <= positionRosterSlots; i++) {
                 int eye = i;
-                var best = rankings.stream()
-                        .filter(r -> r.getPosition().equals(position) && 
-                                r.getPositionRank() == (teams * positionRosterSlots) + eye)
-                        .findFirst().orElseThrow().getPointsPerGame();
-                replacementValuesByPosition.merge(position, List.of(best), (a,b) -> {
-                    List<BigDecimal> merged = new ArrayList<>(a);
-                    merged.addAll(b);
-                    return merged;
+              var best = rankings.stream()
+                  .filter(r -> r.getPosition().equals(position) &&
+                      r.getPositionRank() == (teams * positionRosterSlots) + eye).toList();
+              
+              //if we don't have rankings for positions like K or DST, just skip; also skips BN and FLEX
+              if (!best.isEmpty()) {
+                replacementValuesByPosition.merge(position, List.of(best.get(0).getPointsPerGame()), (a,b) -> {
+                  List<BigDecimal> merged = new ArrayList<>(a);
+                  merged.addAll(b);
+                  return merged;
                 });
+              }
             }
         }
         
@@ -149,19 +151,21 @@ public class ProjectionValueCalculator {
         Map<String, List<BigDecimal>> bestValuesByPosition = new HashMap<>();
         for (Map.Entry<String, Long> positionCount : rosterSlotsByPosition.entrySet()) {
             final String position = positionCount.getKey();
-            if (List.of("BN","FLEX").contains(position)) continue;
 
             int positionRosterSlots = positionCount.getValue().intValue();
             for (int i = 1; i <= positionRosterSlots; i++) {
                 int eye = i;
-                var best = rankings.stream()
-                        .filter(r -> r.getPosition().equals(position) && r.getPositionRank() == eye)
-                        .findFirst().orElseThrow().getPointsPerGame();
-                bestValuesByPosition.merge(position, List.of(best), (a,b) -> {
+                List<PlayerRank> best = rankings.stream()
+                    .filter(r -> r.getPosition().equals(position) && r.getPositionRank() == eye).toList();
+                
+                //if we don't have rankings for positions like K or DST, just skip; also skips BN and FLEX
+                if (!best.isEmpty()) {
+                    bestValuesByPosition.merge(position, List.of(best.get(0).getPointsPerGame()), (a,b) -> {
                     List<BigDecimal> merged = new ArrayList<>(a);
                     merged.addAll(b);
                     return merged;
                 });
+                }
             }
         }
 

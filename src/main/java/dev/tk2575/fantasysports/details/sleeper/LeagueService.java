@@ -16,6 +16,6 @@ public class LeagueService implements SleeperService {
 
     public static void main(String[] args) throws Exception {
         LeagueSettings leagueSettings = new LeagueService().getLeagueSettings("926160489745387520");
-        System.out.println(leagueSettings.getRosterPositions());
+        System.out.println(leagueSettings.getScoringSettings());
     }
 }

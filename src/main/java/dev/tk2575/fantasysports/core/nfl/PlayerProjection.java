@@ -1,6 +1,10 @@
 package dev.tk2575.fantasysports.core.nfl;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -11,20 +15,20 @@ import java.util.List;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class PlayerProjection implements PlayerProjectionInterface {
-    private String position;
-    private List<String> positions;
-	private Player player;
-    private String nflTeam;
-    private int week;
-    private int season;
-    
-    private BigDecimal points;
-    private BigDecimal projectedPrice;
-    
-    private PlayerStats stats;
-    
-    public BigDecimal getPointsPerGame() {
-        //assumes 17 games in regular season
-        return this.points.divide(new BigDecimal(17), 2, RoundingMode.HALF_UP);
-    }
+  private String position;
+  private List<String> positions;
+  private Player player;
+  private String nflTeam;
+  private int week;
+  private int season;
+
+  private BigDecimal points;
+  private BigDecimal projectedPrice;
+
+  private PlayerStats stats;
+
+  public BigDecimal getPointsPerGame() {
+    //assumes 17 games in regular season
+    return this.points.divide(new BigDecimal(17), 2, RoundingMode.HALF_UP);
+  }
 }

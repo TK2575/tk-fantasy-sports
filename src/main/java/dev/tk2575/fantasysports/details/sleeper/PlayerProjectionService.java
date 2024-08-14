@@ -2,7 +2,7 @@ package dev.tk2575.fantasysports.details.sleeper;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import dev.tk2575.fantasysports.core.nfl.Player;
+import dev.tk2575.fantasysports.core.nfl.CanonicalPlayer;
 import dev.tk2575.fantasysports.core.nfl.PlayerProjection;
 import dev.tk2575.fantasysports.core.nfl.PlayerStats;
 
@@ -31,7 +31,7 @@ public class PlayerProjectionService implements SleeperService {
                 position = Position.forValue(positions.get(0));
             }
             
-            var player = Player.builder()
+            var player = CanonicalPlayer.builder()
                     .id(playerId)
                     .firstName(projection.getPlayer().getFirstName())
                     .lastName(projection.getPlayer().getLastName())
