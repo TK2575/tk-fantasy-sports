@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dev.tk2575.fantasysports.Utils;
+
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
@@ -28,12 +30,13 @@ public class FantasyPlayerSummary {
     var first = weeks.get(0);
     var startedWeeks = weeks.stream().filter(FantasyPlayerWeek::isStarted).toList();
     var startedWeeksPoints = startedWeeks.stream().map(FantasyPlayerWeek::getPoints).toList();
+
     return FantasyPlayerSummary.builder()
             .player(first.getPlayer())
             .position(first.getPosition())
             .team(first.getFantasyTeamName())
             .weeksStarted(startedWeeks.size())
-            .medianPointsWhenStarted(startedWeeksPoints)
+            .medianPointsWhenStarted(Utils.median(startedWeeksPoints))
             .totalPointsWhenStarted(startedWeeksPoints.stream().reduce(BigDecimal.ZERO, BigDecimal::add)).build();
   }
   

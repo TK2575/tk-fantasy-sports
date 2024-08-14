@@ -37,9 +37,10 @@ public class DetailsClient {
         return appProps;
     }
     public static void main(String[] args) throws Exception {
-        Properties appProps = getApplicationProperties();
-        String leagueId = appProps.getProperty("sleeper.league-id");
-        
+//        Properties appProps = getApplicationProperties();
+//        String leagueId = appProps.getProperty("sleeper.league-id");
+
+        String leagueId = "926160489745387520";
         generateDraftPrepArtifacts(leagueId);
     }
     
@@ -55,7 +56,8 @@ public class DetailsClient {
 
     private static void generateDraftPrepArtifacts(String leagueId) 
         throws SleeperApiManager.SleeperApiServiceException, IOException {
-        var projections = new PlayerProjectionService().getPreseasonCanonicalProjections(2023);
+        var year = 2024; //TODO determine year at runtime
+        var projections = new PlayerProjectionService().getPreseasonCanonicalProjections(year);
         LeagueSettings leagueSettings = new LeagueService().getLeagueSettings(leagueId);
 
         ProjectionCalculationResult calculation = 
