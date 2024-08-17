@@ -72,10 +72,8 @@ public class DetailsClient {
     AthleticProjectionReader athletic = new AthleticProjectionReader(year);
     if (athletic.projectionsPresent()) {
       // expects league settings to be updated manually on these projections
-      //TODO consider merging with Sleeper projections
+      //TODO consider merging or enriching with Sleeper projections for multi-position eligibility, capturing all players
       projections = athletic.readProjections();
-      //TODO enrich with sleeper projections for multi-position eligibility
-      //TODO what about players in sleeper not in athletic?
     }
 
     ProjectionCalculationResult calculation =
