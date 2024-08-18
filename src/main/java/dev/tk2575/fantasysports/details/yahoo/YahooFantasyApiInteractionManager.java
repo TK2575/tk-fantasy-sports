@@ -17,92 +17,90 @@ import java.util.concurrent.ExecutionException;
 @Log4j2
 class YahooFantasyApiInteractionManager {
 
-//	FIXME
+  //	FIXME
 //	@Value("${app.key}")
-	private String key;
+  private String key;
 
-//	@Value("${app.secret}")
-	private String secret;
+  //	@Value("${app.secret}")
+  private String secret;
 
-	private OAuth2AccessToken accessToken;
-	private Instant tokenExpiration;
-	private final OAuth20Service service;
+  private OAuth2AccessToken accessToken;
+  private Instant tokenExpiration;
+  private final OAuth20Service service;
 
-	private final Gson gson = YahooUtils.getGson();
+  private final Gson gson = YahooUtils.getGson();
 
-	private static YahooFantasyApiInteractionManager instance;
+  private static YahooFantasyApiInteractionManager instance;
 
-	static {
-		try {
-			instance = new YahooFantasyApiInteractionManager();
-		}
-		catch (Exception e) {
-			log.fatal("Unable to initialize YahooFantasyService");
-			log.fatal(e);
-			System.exit(1);
-		}
-	}
+  static {
+    try {
+      instance = new YahooFantasyApiInteractionManager();
+    } catch (Exception e) {
+      log.fatal("Unable to initialize YahooFantasyService");
+      log.fatal(e);
+      System.exit(1);
+    }
+  }
 
-	private YahooFantasyApiInteractionManager() throws IOException, ExecutionException, InterruptedException {
-		YahooAppInfo yahooAppInfo = YahooAppInfo.readAppInfoFromFile();
+  private YahooFantasyApiInteractionManager() throws IOException, ExecutionException, InterruptedException {
+    YahooAppInfo yahooAppInfo = YahooAppInfo.readAppInfoFromFile();
 
-		this.service = new ServiceBuilder(yahooAppInfo.getKey())
-				.apiSecret(yahooAppInfo.getSecret())
-				.callback(OAuthConstants.OOB)
-				.build(YahooApi20.instance());
+    this.service = new ServiceBuilder(yahooAppInfo.getKey())
+        .apiSecret(yahooAppInfo.getSecret())
+        .callback(OAuthConstants.OOB)
+        .build(YahooApi20.instance());
 
-		this.accessToken = BearerToken.readTokenFromFile();
-		if (this.accessToken == null) {
-			throw new IllegalArgumentException("Could not find existing bearer token, please generate a new one");
-		}
-		maybeRefreshToken();
-	}
+    this.accessToken = BearerToken.readTokenFromFile();
+    if (this.accessToken == null) {
+      throw new IllegalArgumentException("Could not find existing bearer token, please generate a new one");
+    }
+    maybeRefreshToken();
+  }
 
-	static YahooFantasyApiInteractionManager getInstance() {
-		return instance;
-	}
+  static YahooFantasyApiInteractionManager getInstance() {
+    return instance;
+  }
 
-	private void maybeRefreshToken() throws IOException, ExecutionException, InterruptedException {
-		Instant now = Instant.now();
-		if (this.tokenExpiration == null || !now.isBefore(this.tokenExpiration)) {
-			log.info("Refreshing Bearer Token");
-			this.accessToken = service.refreshAccessToken(this.accessToken.getRefreshToken());
-			this.tokenExpiration = now.plusSeconds(this.accessToken.getExpiresIn());
-		}
-	}
+  private void maybeRefreshToken() throws IOException, ExecutionException, InterruptedException {
+    Instant now = Instant.now();
+    if (this.tokenExpiration == null || !now.isBefore(this.tokenExpiration)) {
+      log.info("Refreshing Bearer Token");
+      this.accessToken = service.refreshAccessToken(this.accessToken.getRefreshToken());
+      this.tokenExpiration = now.plusSeconds(this.accessToken.getExpiresIn());
+    }
+  }
 
-	String request(String url) throws IOException, ExecutionException, InterruptedException, YahooFantasyServiceException {
-		Response response = null;
-		try {
-			maybeRefreshToken();
-			final OAuthRequest request = new OAuthRequest(Verb.GET, url);
-			service.signRequest(accessToken, request);
-			response = service.execute(request);
-		}
-		catch (Exception e) {
-			throw new YahooFantasyServiceException(e);
-		}
-		if (response.getCode() == 200) {
-			return response.getBody();
-		}
-		log.error(String.format("Received %s code for url: %s", response.getCode(), url));
-		throw new YahooFantasyServiceException(response.getMessage());
-	}
+  String request(String url) throws IOException, ExecutionException, InterruptedException, YahooFantasyServiceException {
+    Response response = null;
+    try {
+      maybeRefreshToken();
+      final OAuthRequest request = new OAuthRequest(Verb.GET, url);
+      service.signRequest(accessToken, request);
+      response = service.execute(request);
+    } catch (Exception e) {
+      throw new YahooFantasyServiceException(e);
+    }
+    if (response.getCode() == 200) {
+      return response.getBody();
+    }
+    log.error(String.format("Received %s code for url: %s", response.getCode(), url));
+    throw new YahooFantasyServiceException(response.getMessage());
+  }
 
-	String generateUrl(@NonNull String path) {
-		if (path.isBlank()) {
-			throw new IllegalArgumentException("path is a required argument");
-		}
-		return String.format("https://fantasysports.yahooapis.com%s?response=json", path);
-	}
+  String generateUrl(@NonNull String path) {
+    if (path.isBlank()) {
+      throw new IllegalArgumentException("path is a required argument");
+    }
+    return String.format("https://fantasysports.yahooapis.com%s?response=json", path);
+  }
 
-	public static class YahooFantasyServiceException extends Exception {
-		public YahooFantasyServiceException(String message) {
-			super(message);
-		}
+  public static class YahooFantasyServiceException extends Exception {
+    public YahooFantasyServiceException(String message) {
+      super(message);
+    }
 
-		public YahooFantasyServiceException(Exception e) {
-			super(e);
-		}
-	}
+    public YahooFantasyServiceException(Exception e) {
+      super(e);
+    }
+  }
 }

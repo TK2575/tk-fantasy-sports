@@ -10,18 +10,18 @@ import java.util.Map;
 @EqualsAndHashCode
 @Getter
 class SleeperPlayerProjection {
-    private Object week;
-    private String team;
-    private Map<String, Double> stats;
-    private String sport;
-    private String seasonType;
-    private String season;
-    private String playerId;
-    private SleeperPlayer player;
-    private Object opponent;
-    private long lastModified;
-    private String gameID;
-    private Object date;
-    private String company;
-    private String category;
+  private Object week;
+  private String team;
+  private Map<String, Double> stats;
+  private String sport;
+  private String seasonType;
+  private String season;
+  private String playerId;
+  private SleeperPlayer player;
+  private Object opponent;
+  private long lastModified;
+  private String gameID;
+  private Object date;
+  private String company;
+  private String category;
 }

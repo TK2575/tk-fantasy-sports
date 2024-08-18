@@ -4,6 +4,6 @@ import lombok.*;
 
 @Getter
 public class Manager {
-	private String name;
-	private String emailAddress;
+  private String name;
+  private String emailAddress;
 }

@@ -12,12 +12,13 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder(toBuilder = true)
 public class MatchupTeam {
-    private String teamKey;
-    @ToString.Exclude private BigDecimal winProbability;
-    private BigDecimal totalPoints;
-    private BigDecimal projectedPoints;
+  private String teamKey;
+  @ToString.Exclude
+  private BigDecimal winProbability;
+  private BigDecimal totalPoints;
+  private BigDecimal projectedPoints;
 
-    public int getTeamId() {
-        return Integer.parseInt(teamKey.substring(teamKey.lastIndexOf(".t.")+3));
-    }
+  public int getTeamId() {
+    return Integer.parseInt(teamKey.substring(teamKey.lastIndexOf(".t.") + 3));
+  }
 }

@@ -7,9 +7,9 @@ import java.util.Comparator;
 import java.util.List;
 
 public class FantasyPlayerSummaryWriter implements FileWriterDetail {
-  
+
   private final List<FantasyPlayerSummary> stats;
-  
+
   public FantasyPlayerSummaryWriter(List<FantasyPlayerSummary> stats) {
     List<FantasyPlayerSummary> sortedStats = new ArrayList<>(stats);
     sortedStats.sort(Comparator.comparing(FantasyPlayerSummary::getPlayer)
@@ -28,7 +28,7 @@ public class FantasyPlayerSummaryWriter implements FileWriterDetail {
   }
 
   private String[] convertToRow(FantasyPlayerSummary stat) {
-    return new String[] {
+    return new String[]{
         stat.getPlayer(),
         stat.getPosition(),
         stat.getTeam(),
@@ -40,7 +40,7 @@ public class FantasyPlayerSummaryWriter implements FileWriterDetail {
 
   @Override
   public String[] getHeaders() {
-    return new String[] {
+    return new String[]{
         "player",
         "position",
         "team",

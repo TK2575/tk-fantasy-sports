@@ -12,10 +12,10 @@ import java.util.Optional;
 @EqualsAndHashCode
 public class SleeperUser {
   private String userId;
-  private Map<String,String> metadata;
+  private Map<String, String> metadata;
   private String leagueId;
   private String displayName;
-  
+
   Optional<String> getTeamName() {
     return Optional.ofNullable(metadata.get("team_name"));
   }

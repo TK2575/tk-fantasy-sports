@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 @Getter
 @ToString
 public class PositionPointValue {
-    private final String position;
-    private final BigDecimal best;
-    private final BigDecimal replacement;
+  private final String position;
+  private final BigDecimal best;
+  private final BigDecimal replacement;
 }

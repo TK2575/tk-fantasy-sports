@@ -6,9 +6,9 @@ import java.util.Set;
 
 @Getter
 public class FantasyTeam {
-	private int season;
-	private String name;
-	private Manager manager;
-	private Manager coManager;
-	private Set<String> priorNames;
+  private int season;
+  private String name;
+  private Manager manager;
+  private Manager coManager;
+  private Set<String> priorNames;
 }

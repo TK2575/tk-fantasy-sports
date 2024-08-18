@@ -6,7 +6,7 @@ import lombok.*;
 @ToString
 @RequiredArgsConstructor
 public class Team {
-	private String key;
-	private String name;
-	private String abbrevation;
+  private String key;
+  private String name;
+  private String abbrevation;
 }

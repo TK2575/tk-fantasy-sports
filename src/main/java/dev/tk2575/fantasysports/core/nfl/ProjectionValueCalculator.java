@@ -29,8 +29,8 @@ public class ProjectionValueCalculator {
     return new ProjectionCalculationResult(playerValues, positionValues);
   }
 
-  private List<PlayerProjectionValue> computePlayerValues(List<PlayerRank> playerRanks, 
-                                                          List<PositionPointValue> positionValues, 
+  private List<PlayerProjectionValue> computePlayerValues(List<PlayerRank> playerRanks,
+                                                          List<PositionPointValue> positionValues,
                                                           Map<String, Long> rosterSlotCountByPosition) {
     Map<String, BigDecimal> replacementValues =
         positionValues.stream()
@@ -45,8 +45,8 @@ public class ProjectionValueCalculator {
     }).toList();
   }
 
-  private List<PositionPointValue> computePosPointValuesByIndex(List<PlayerRank> rankings, 
-                                                                int teams, 
+  private List<PositionPointValue> computePosPointValuesByIndex(List<PlayerRank> rankings,
+                                                                int teams,
                                                                 Map<String, Long> rosterSlotsByPosition) {
     int flexRosterSpots = rosterSlotsByPosition.get("FLEX").intValue();
     List<PlayerRank> replacementFlexPlayers =
@@ -83,12 +83,12 @@ public class ProjectionValueCalculator {
     return results;
   }
 
-  private Map<String, List<BigDecimal>> getReplacementValuesByPosition(List<PlayerRank> rankings, 
-                                                                       int teams, 
-                                                                       int flexRosterSpots, 
-                                                                       List<PlayerRank> replacementPlayersArg, 
+  private Map<String, List<BigDecimal>> getReplacementValuesByPosition(List<PlayerRank> rankings,
+                                                                       int teams,
+                                                                       int flexRosterSpots,
+                                                                       List<PlayerRank> replacementPlayersArg,
                                                                        Map<String, Long> rosterSlotsByPosition) {
-    Map<String, List<BigDecimal>> replacementValuesByPosition = 
+    Map<String, List<BigDecimal>> replacementValuesByPosition =
         getFlexEligibleReplacementValues(teams, flexRosterSpots, replacementPlayersArg, rosterSlotsByPosition);
 
     for (Map.Entry<String, Long> positionCount : rosterSlotsByPosition.entrySet()) {
@@ -118,9 +118,9 @@ public class ProjectionValueCalculator {
     return replacementValuesByPosition;
   }
 
-  private Map<String, List<BigDecimal>> getFlexEligibleReplacementValues(int teams, 
-                                                                         int flexRosterSpots, 
-                                                                         List<PlayerRank> replacementPlayersArg, 
+  private Map<String, List<BigDecimal>> getFlexEligibleReplacementValues(int teams,
+                                                                         int flexRosterSpots,
+                                                                         List<PlayerRank> replacementPlayersArg,
                                                                          Map<String, Long> rosterSlotsByPositionArg) {
     Map<String, List<BigDecimal>> replacementValuesByPosition = new HashMap<>();
     int flexStarterCount = flexRosterSpots * teams;

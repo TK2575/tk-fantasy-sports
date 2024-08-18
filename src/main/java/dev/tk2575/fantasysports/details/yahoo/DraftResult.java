@@ -8,13 +8,13 @@ import lombok.*;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 public class DraftResult {
-	@SerializedName("team_key")
-	private String teamKey;
+  @SerializedName("team_key")
+  private String teamKey;
 
-	@SerializedName("player_key")
-	private String playerKey;
+  @SerializedName("player_key")
+  private String playerKey;
 
-	private long pick;
-	private long round;
-	private long cost;
+  private long pick;
+  private long round;
+  private long cost;
 }

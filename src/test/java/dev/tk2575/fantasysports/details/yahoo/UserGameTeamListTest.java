@@ -10,26 +10,25 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class UserGameTeamListTest {
 
-	static String rawJson;
+  static String rawJson;
 
-	static {
-		try {
-			rawJson = TestUtils.readTestResourceFileToString("UserGamesTeams.json");
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+  static {
+    try {
+      rawJson = TestUtils.readTestResourceFileToString("UserGamesTeams.json");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-	@Test
-	void testDeserialization() {
-		assertNotNull(rawJson);
+  @Test
+  void testDeserialization() {
+    assertNotNull(rawJson);
 
-		UserGameTeamList userGameTeam = YahooUtils.getGson().fromJson(rawJson, UserGameTeamList.class);
+    UserGameTeamList userGameTeam = YahooUtils.getGson().fromJson(rawJson, UserGameTeamList.class);
 
-		assertNotNull(userGameTeam);
-		assertNotNull(userGameTeam.getUserGameTeams());
-		assertEquals(11, userGameTeam.getUserGameTeams().size());
-	}
+    assertNotNull(userGameTeam);
+    assertNotNull(userGameTeam.getUserGameTeams());
+    assertEquals(11, userGameTeam.getUserGameTeams().size());
+  }
 
 }

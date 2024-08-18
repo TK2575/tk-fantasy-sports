@@ -80,7 +80,7 @@ public class DetailsClient {
         new ProjectionValueCalculator(projections)
             .calculate(leagueSettings.getTotalRosters(), leagueSettings.getRosterPositions());
 
-    
+
     new PlayerProjectionValueWriter(calculation.getPlayers())
         .writeToFile(String.format("projections-%s.tsv", today), "\t");
 

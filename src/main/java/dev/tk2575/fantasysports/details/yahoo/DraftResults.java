@@ -14,30 +14,30 @@ import java.util.Map;
 @ToString
 @RequiredArgsConstructor
 public class DraftResults implements YahooFantasyObject {
-	static final String URL = "/fantasy/v2/league/%s/draftresults";
+  static final String URL = "/fantasy/v2/league/%s/draftresults";
 
-	private final List<DraftResult> results;
+  private final List<DraftResult> results;
 
-	static JsonDeserializer<DraftResults> deserializer() {
-		return (json, type, jsonDeserializationContext) -> {
-			List<DraftResult> results = new ArrayList<>();
+  static JsonDeserializer<DraftResults> deserializer() {
+    return (json, type, jsonDeserializationContext) -> {
+      List<DraftResult> results = new ArrayList<>();
 
-			JsonArray leagueResources = json.getAsJsonObject().get("fantasy_content").getAsJsonObject().get("league").getAsJsonArray();
-			for (JsonElement eachLeagueResource : leagueResources) {
-				if (eachLeagueResource.isJsonObject() && eachLeagueResource.getAsJsonObject().get("draft_results") != null) {
-					JsonObject draftResults = eachLeagueResource.getAsJsonObject().get("draft_results").getAsJsonObject();
-					for (Map.Entry<String, JsonElement> draftEntry : draftResults.entrySet()) {
-						if (draftEntry.getValue().isJsonObject() && draftEntry.getValue().getAsJsonObject().get("draft_result").isJsonObject()) {
-							JsonObject draftResult = draftEntry.getValue().getAsJsonObject().get("draft_result").getAsJsonObject();
-							if (draftResult != null) {
-								DraftResult result = jsonDeserializationContext.deserialize(draftResult, DraftResult.class);
-								results.add(result);
-							}
-						}
-					}
-				}
-			}
-			return new DraftResults(results);
-		};
-	}
+      JsonArray leagueResources = json.getAsJsonObject().get("fantasy_content").getAsJsonObject().get("league").getAsJsonArray();
+      for (JsonElement eachLeagueResource : leagueResources) {
+        if (eachLeagueResource.isJsonObject() && eachLeagueResource.getAsJsonObject().get("draft_results") != null) {
+          JsonObject draftResults = eachLeagueResource.getAsJsonObject().get("draft_results").getAsJsonObject();
+          for (Map.Entry<String, JsonElement> draftEntry : draftResults.entrySet()) {
+            if (draftEntry.getValue().isJsonObject() && draftEntry.getValue().getAsJsonObject().get("draft_result").isJsonObject()) {
+              JsonObject draftResult = draftEntry.getValue().getAsJsonObject().get("draft_result").getAsJsonObject();
+              if (draftResult != null) {
+                DraftResult result = jsonDeserializationContext.deserialize(draftResult, DraftResult.class);
+                results.add(result);
+              }
+            }
+          }
+        }
+      }
+      return new DraftResults(results);
+    };
+  }
 }

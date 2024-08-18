@@ -17,31 +17,31 @@ import java.util.stream.Collectors;
 public class PlayerService implements SleeperService {
   private final Gson gson = getGson();
   private final SleeperApiManager api;
-  
+
   public PlayerService() {
     this.api = new SleeperApiManager();
   }
-  
+
   // For testing
   protected PlayerService(SleeperApiManager api) {
     this.api = api;
   }
-  
+
   public Map<String, String> getPlayersAndPosById() throws SleeperApiManager.SleeperApiServiceException {
-      return getPlayers().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> {
-        SleeperPlayer player = e.getValue();
-        Position position = player.getPosition();
-        return String.join("---", player.getFullName(), position == null ? "UNK" : position.toValue());
-      }));
+    return getPlayers().entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> {
+      SleeperPlayer player = e.getValue();
+      Position position = player.getPosition();
+      return String.join("---", player.getFullName(), position == null ? "UNK" : position.toValue());
+    }));
   }
-  
-  Map<String,SleeperPlayer> getPlayers() throws SleeperApiManager.SleeperApiServiceException {
+
+  Map<String, SleeperPlayer> getPlayers() throws SleeperApiManager.SleeperApiServiceException {
     PlayerCache cache = getFromCache();
     LocalDate today = LocalDate.now();
     if (cache != null && !cache.isStale(today)) {
-        return cache.players;
-    } 
-    Map<String,SleeperPlayer> result = getPlayersFromApi();
+      return cache.players;
+    }
+    Map<String, SleeperPlayer> result = getPlayersFromApi();
     try {
       writeCache(today, result);
     } catch (IOException e) {
@@ -61,9 +61,9 @@ public class PlayerService implements SleeperService {
     } catch (IOException e) {
       // file missing or unreadable, need to write fresh cache
     }
-    
-    return sb.isEmpty() 
-        ? null 
+
+    return sb.isEmpty()
+        ? null
         : this.gson.fromJson(sb.toString(), PlayerCache.class);
   }
 
@@ -76,17 +76,18 @@ public class PlayerService implements SleeperService {
 
   private Map<String, SleeperPlayer> getPlayersFromApi() throws SleeperApiManager.SleeperApiServiceException {
     String response = this.api.request("https://api.sleeper.app/v1/players/nfl");
-    return this.gson.fromJson(response, (new TypeToken<Map<String, SleeperPlayer>>(){}).getType());
+    return this.gson.fromJson(response, (new TypeToken<Map<String, SleeperPlayer>>() {
+    }).getType());
   }
-  
+
   @RequiredArgsConstructor
   static class PlayerCache {
     static final String CACHE_FILE = "temp/player-cache.json";
-    static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd"); 
-    
+    static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
     final String lastUpdated;
     final Map<String, SleeperPlayer> players;
-    
+
     boolean isStale(LocalDate now) {
       return LocalDate.parse(this.lastUpdated, DATE_FORMAT).isBefore(now);
     }

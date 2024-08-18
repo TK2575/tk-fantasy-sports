@@ -12,10 +12,10 @@ import com.google.gson.JsonParseException;
 import java.lang.reflect.Type;
 
 public interface SleeperService {
-    
-    default Gson getGson() {
-        return new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .create();
-    }
+
+  default Gson getGson() {
+    return new GsonBuilder()
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+        .create();
+  }
 }

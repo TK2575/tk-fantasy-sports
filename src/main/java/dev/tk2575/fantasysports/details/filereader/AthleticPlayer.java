@@ -7,9 +7,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class AthleticPlayer implements Player {
-  
+
   private final String name;
-  
+
   @Override
   public String getId() {
     return null;

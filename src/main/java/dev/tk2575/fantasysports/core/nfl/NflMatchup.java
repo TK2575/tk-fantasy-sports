@@ -6,16 +6,16 @@ import java.math.BigDecimal;
 
 @Getter
 public class NflMatchup {
-	private int week;
+  private int week;
 
-	private FantasyTeam fantasyTeam;
-	private FantasyTeam opponent;
+  private FantasyTeam fantasyTeam;
+  private FantasyTeam opponent;
 
-	private boolean win;
-	private boolean playoffs;
+  private boolean win;
+  private boolean playoffs;
 
-	private BigDecimal points;
-	private BigDecimal netVsProjected;
-	private BigDecimal benchPoints;
-	private BigDecimal optimalPoints;
+  private BigDecimal points;
+  private BigDecimal netVsProjected;
+  private BigDecimal benchPoints;
+  private BigDecimal optimalPoints;
 }

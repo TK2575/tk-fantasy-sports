@@ -12,12 +12,12 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 class SleeperMatchup {
-    private Map<String,BigDecimal> playersPoints;
-    private List<BigDecimal> startersPoints;
-    private List<String> starters;
-    private Long matchupId;
-    private BigDecimal customPoints;
-    private Long rosterId;
-    private List<String> players;
-    private BigDecimal points;
+  private Map<String, BigDecimal> playersPoints;
+  private List<BigDecimal> startersPoints;
+  private List<String> starters;
+  private Long matchupId;
+  private BigDecimal customPoints;
+  private Long rosterId;
+  private List<String> players;
+  private BigDecimal points;
 }

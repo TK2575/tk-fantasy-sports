@@ -10,49 +10,48 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class PlayersTest {
 
-	static String playersJson;
-	static String playersWithRosterPositionJson;
+  static String playersJson;
+  static String playersWithRosterPositionJson;
 
-	static {
-		try {
-			playersJson = TestUtils.readTestResourceFileToString("Players.json");
-			playersWithRosterPositionJson = TestUtils.readTestResourceFileToString("PlayersWithRosterPosition.json");
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+  static {
+    try {
+      playersJson = TestUtils.readTestResourceFileToString("Players.json");
+      playersWithRosterPositionJson = TestUtils.readTestResourceFileToString("PlayersWithRosterPosition.json");
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
 
-	@Test
-	void testDeserializationWithoutRosterPosition() {
-		assertNotNull(playersJson);
+  @Test
+  void testDeserializationWithoutRosterPosition() {
+    assertNotNull(playersJson);
 
-		Players players = YahooUtils.getGson().fromJson(playersJson, Players.class);
-		assertNotNull(players);
+    Players players = YahooUtils.getGson().fromJson(playersJson, Players.class);
+    assertNotNull(players);
 
-		List<Player> playersList = players.getPlayers();
-		assertTrue(playersList != null && !playersList.isEmpty());
-		for (Player player : playersList) {
-			assertTrue(player.getKey() != null && !player.getKey().isBlank());
-			assertTrue(player.getFullName() != null && !player.getFullName().isBlank());
-			assertNull(player.getRosterPosition());
-		}
-	}
+    List<Player> playersList = players.getPlayers();
+    assertTrue(playersList != null && !playersList.isEmpty());
+    for (Player player : playersList) {
+      assertTrue(player.getKey() != null && !player.getKey().isBlank());
+      assertTrue(player.getFullName() != null && !player.getFullName().isBlank());
+      assertNull(player.getRosterPosition());
+    }
+  }
 
-	@Test
-	void testDeserializationWithRosterPosition() {
-		assertNotNull(playersWithRosterPositionJson);
+  @Test
+  void testDeserializationWithRosterPosition() {
+    assertNotNull(playersWithRosterPositionJson);
 
-		Players playersWithRosterPosition = YahooUtils.getGson().fromJson(playersWithRosterPositionJson, Players.class);
-		assertNotNull(playersWithRosterPosition);
+    Players playersWithRosterPosition = YahooUtils.getGson().fromJson(playersWithRosterPositionJson, Players.class);
+    assertNotNull(playersWithRosterPosition);
 
-		List<Player> players = playersWithRosterPosition.getPlayers();
-		assertTrue(players != null && !players.isEmpty());
-		for (Player player : players) {
-			assertTrue(player.getKey() != null && !player.getKey().isBlank());
-			assertTrue(player.getFullName() != null && !player.getFullName().isBlank());
-			assertNotNull(player.getRosterPosition());
-		}
-	}
+    List<Player> players = playersWithRosterPosition.getPlayers();
+    assertTrue(players != null && !players.isEmpty());
+    for (Player player : players) {
+      assertTrue(player.getKey() != null && !player.getKey().isBlank());
+      assertTrue(player.getFullName() != null && !player.getFullName().isBlank());
+      assertNotNull(player.getRosterPosition());
+    }
+  }
 
 }

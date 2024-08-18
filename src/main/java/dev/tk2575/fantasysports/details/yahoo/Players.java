@@ -16,22 +16,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class Players {
 
-    static final String URL = "/fantasy/v2/league/%s/players";
+  static final String URL = "/fantasy/v2/league/%s/players";
 
-    private final List<Player> players;
+  private final List<Player> players;
 
-    static JsonDeserializer<Players> deserializer() {
-        return (json, type, jsonDeserializationContext) -> {
-            if (json.isJsonNull()) return null;
-            List<Player> results = new ArrayList<>();
-            JsonObject players = json.getAsJsonObject().get("players").getAsJsonObject();
-            for (Map.Entry<String, JsonElement> playerEntry : players.entrySet()) {
-                JsonElement playerEntryValue = playerEntry.getValue();
-                if (playerEntryValue.isJsonObject()) {
-                    results.add(jsonDeserializationContext.deserialize(playerEntryValue, Player.class));
-                }
-            }
-            return new Players(results);
-        };
-    }
+  static JsonDeserializer<Players> deserializer() {
+    return (json, type, jsonDeserializationContext) -> {
+      if (json.isJsonNull()) return null;
+      List<Player> results = new ArrayList<>();
+      JsonObject players = json.getAsJsonObject().get("players").getAsJsonObject();
+      for (Map.Entry<String, JsonElement> playerEntry : players.entrySet()) {
+        JsonElement playerEntryValue = playerEntry.getValue();
+        if (playerEntryValue.isJsonObject()) {
+          results.add(jsonDeserializationContext.deserialize(playerEntryValue, Player.class));
+        }
+      }
+      return new Players(results);
+    };
+  }
 }

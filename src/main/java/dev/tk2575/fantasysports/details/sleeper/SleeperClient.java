@@ -32,7 +32,7 @@ public class SleeperClient {
     var ownersByRoster = rosters.stream().collect(Collectors.toMap(SleeperRoster::getRosterId, SleeperRoster::getOwnerId));
     var teamNamesByOwner = users.stream().collect(Collectors.toMap(SleeperUser::getUserId, SleeperUser::getTeamName));
     var displayNamesByOwner = users.stream().collect(Collectors.toMap(SleeperUser::getUserId, SleeperUser::getDisplayName));
-    
+
     return ownersByRoster.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> {
       String ownerId = e.getValue();
       Optional<String> teamName = teamNamesByOwner.get(ownerId);

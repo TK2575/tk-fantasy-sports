@@ -26,10 +26,10 @@ public class FantasyPlayerSummary {
   private int weeksStarted;
   private BigDecimal totalPointsWhenStarted;
   private BigDecimal medianPointsWhenStarted;
-  
+
   public static FantasyPlayerSummary from(List<FantasyPlayerWeek> weeks) {
     var first = weeks.get(0);
-    
+
     FantasyPlayerSummaryBuilder builder = FantasyPlayerSummary.builder()
         .player(first.getPlayer())
         .position(first.getPosition())
@@ -37,33 +37,33 @@ public class FantasyPlayerSummary {
         .weeksStarted(0)
         .totalPointsWhenStarted(BigDecimal.ZERO)
         .medianPointsWhenStarted(BigDecimal.ZERO);
-        
+
 
     var startedWeeksPoints =
         weeks.stream()
             .filter(FantasyPlayerWeek::isStarted)
             .map(FantasyPlayerWeek::getPoints)
             .sorted().toList();
-    
+
     if (!startedWeeksPoints.isEmpty()) {
       int size = startedWeeksPoints.size();
       BigDecimal midpoint = startedWeeksPoints.get(size / 2);
       BigDecimal medianPointsWhenStarted = midpoint;
-      
+
       if (size % 2 == 0) {
         medianPointsWhenStarted = midpoint
             .add(startedWeeksPoints.get(size / 2 - 1))
             .divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
       }
-      
+
       builder.weeksStarted(size)
           .medianPointsWhenStarted(medianPointsWhenStarted)
           .totalPointsWhenStarted(startedWeeksPoints.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
     }
-    
+
     return builder.build();
   }
-  
+
   public static List<FantasyPlayerSummary> summarize(List<FantasyPlayerWeek> weeks) {
     return weeks.stream()
         .collect(Collectors.groupingBy(p -> p.getPlayer() + p.getFantasyTeamName()))

@@ -6,17 +6,17 @@ import lombok.*;
 @Getter
 @ToString
 public class RosterPosition {
-	private String position;
+  private String position;
 
-	@SerializedName("position_type")
-	private String positionType;
+  @SerializedName("position_type")
+  private String positionType;
 
-	private int count;
+  private int count;
 
-	@SerializedName("is_starting_position")
-	private long startingPosition;
+  @SerializedName("is_starting_position")
+  private long startingPosition;
 
-	boolean isStartingPosition() {
-		return this.startingPosition == 1;
-	}
+  boolean isStartingPosition() {
+    return this.startingPosition == 1;
+  }
 }

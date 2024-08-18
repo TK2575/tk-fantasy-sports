@@ -9,7 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class CanonicalPlayerServiceTest {
-  
+
   @Test
   void testGetPlayers_deserialization() throws Exception {
     SleeperApiManager api = mock(SleeperApiManager.class);
@@ -17,7 +17,7 @@ class CanonicalPlayerServiceTest {
     when(api.request(anyString())).thenReturn(response);
     assertEquals(2, new PlayerService(api).getPlayers().size());
   }
-  
+
   //TODO add test for cache
 
 }

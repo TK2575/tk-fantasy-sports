@@ -6,7 +6,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 public class YahooManager {
-	private int id;
-	private String nickname;
-	private String guid;
+  private int id;
+  private String nickname;
+  private String guid;
 }

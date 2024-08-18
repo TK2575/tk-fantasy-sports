@@ -6,16 +6,16 @@ import java.math.BigDecimal;
 
 @Getter
 public class NflPlayerWeek {
-	private String position;
-	private Player player;
-	private FantasyTeam fantasyTeam;
-	private boolean benched;
-	private String rosterSlot;
-	private String nflTeam;
-	private int week;
+  private String position;
+  private Player player;
+  private FantasyTeam fantasyTeam;
+  private boolean benched;
+  private String rosterSlot;
+  private String nflTeam;
+  private int week;
 
-	private BigDecimal points = BigDecimal.ZERO;
-	private BigDecimal percentOwned;
+  private BigDecimal points = BigDecimal.ZERO;
+  private BigDecimal percentOwned;
 
-	private PlayerStats stats;
+  private PlayerStats stats;
 }
