@@ -16,7 +16,8 @@ public class PlayerProjectionService implements SleeperService {
 
   private final SleeperApiManager api = SleeperApiManager.getInstance();
 
-  public List<PlayerProjection> getPreseasonCanonicalProjections(int season) throws SleeperApiManager.SleeperApiServiceException, IOException {
+  public List<PlayerProjection> getPreseasonCanonicalProjections(int season)
+			throws SleeperApiManager.SleeperApiServiceException, IOException {
     Map<String, SleeperPlayerProjection> positionProjections = getAllPositionProjections(season);
     Map<String, BigDecimal> auctionValues = getAuctionValues(season);
     List<PlayerProjection> results = new ArrayList<>();
@@ -26,7 +27,8 @@ public class PlayerProjectionService implements SleeperService {
       BigDecimal auctionValue = auctionValues.getOrDefault(playerId, BigDecimal.ZERO);
       SleeperPlayerProjection projection = projectionEntry.getValue();
       Position position = projection.getPlayer().getPosition();
-      List<String> positions = projection.getPlayer().getFantasyPositions().stream().map(Position::toValue).toList();
+			List<String> positions = projection.getPlayer().getFantasyPositions()
+					.stream().filter(Objects::nonNull).map(Position::toValue).toList();
       if (position == null && !positions.isEmpty()) {
         position = Position.forValue(positions.get(0));
       }

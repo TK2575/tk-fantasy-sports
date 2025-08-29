@@ -22,7 +22,8 @@ import java.util.Map;
 @Log4j2
 public class AthleticProjectionReader {
 
-  private static final String BASE_PATH = "athletic-projections";
+  // expects one tsv file per position in src/main/resources/athletic-projections/<year>
+	private static final String BASE_PATH = "athletic-projections";
 
   private final int year;
 
