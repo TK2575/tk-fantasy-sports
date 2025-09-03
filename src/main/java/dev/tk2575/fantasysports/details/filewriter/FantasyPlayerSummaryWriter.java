@@ -34,7 +34,8 @@ public class FantasyPlayerSummaryWriter implements FileWriterDetail {
         stat.getTeam(),
         String.valueOf(stat.getWeeksStarted()),
         stat.getMedianPointsWhenStarted().toString(),
-        stat.getTotalPointsWhenStarted().toString()
+        stat.getTotalPointsWhenStarted().toString(),
+				stat.getStandardDeviationWhenStarted().toString()
     };
   }
 
@@ -46,7 +47,8 @@ public class FantasyPlayerSummaryWriter implements FileWriterDetail {
         "team",
         "weeks_started",
         "median_started_points",
-        "total_started_points"
+        "total_started_points",
+				"standard_deviation_started_points"
     };
   }
 }

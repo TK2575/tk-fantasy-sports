@@ -26,6 +26,7 @@ public class FantasyPlayerSummary {
   private int weeksStarted;
   private BigDecimal totalPointsWhenStarted;
   private BigDecimal medianPointsWhenStarted;
+  private BigDecimal standardDeviationWhenStarted;
 
   public static FantasyPlayerSummary from(List<FantasyPlayerWeek> weeks) {
     var first = weeks.get(0);
@@ -36,7 +37,8 @@ public class FantasyPlayerSummary {
         .team(first.getFantasyTeamName())
         .weeksStarted(0)
         .totalPointsWhenStarted(BigDecimal.ZERO)
-        .medianPointsWhenStarted(BigDecimal.ZERO);
+        .medianPointsWhenStarted(BigDecimal.ZERO)
+        .standardDeviationWhenStarted(BigDecimal.ZERO);
 
 
     var startedWeeksPoints =
@@ -56,9 +58,21 @@ public class FantasyPlayerSummary {
             .divide(BigDecimal.valueOf(2), 2, RoundingMode.HALF_UP);
       }
 
+      BigDecimal totalPoints = startedWeeksPoints.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+      BigDecimal average = totalPoints.divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP);
+      
+      BigDecimal variance = startedWeeksPoints.stream()
+          .map(points -> points.subtract(average).pow(2))
+          .reduce(BigDecimal.ZERO, BigDecimal::add)
+          .divide(BigDecimal.valueOf(size), 2, RoundingMode.HALF_UP);
+      
+      BigDecimal standardDeviation = BigDecimal.valueOf(Math.sqrt(variance.doubleValue()))
+          .setScale(2, RoundingMode.HALF_UP);
+
       builder.weeksStarted(size)
           .medianPointsWhenStarted(medianPointsWhenStarted)
-          .totalPointsWhenStarted(startedWeeksPoints.stream().reduce(BigDecimal.ZERO, BigDecimal::add));
+          .totalPointsWhenStarted(totalPoints)
+          .standardDeviationWhenStarted(standardDeviation);
     }
 
     return builder.build();
