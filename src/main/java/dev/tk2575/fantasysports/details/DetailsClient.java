@@ -10,11 +10,7 @@ import dev.tk2575.fantasysports.details.filewriter.FantasyPlayerSummaryWriter;
 import dev.tk2575.fantasysports.details.filewriter.FantasyPlayerWeekWriter;
 import dev.tk2575.fantasysports.details.filewriter.PlayerProjectionValueWriter;
 import dev.tk2575.fantasysports.details.filewriter.PositionPointValueWriter;
-import dev.tk2575.fantasysports.details.sleeper.LeagueService;
-import dev.tk2575.fantasysports.details.sleeper.LeagueSettings;
-import dev.tk2575.fantasysports.details.sleeper.PlayerProjectionService;
-import dev.tk2575.fantasysports.details.sleeper.SleeperApiManager;
-import dev.tk2575.fantasysports.details.sleeper.SleeperClient;
+import dev.tk2575.fantasysports.details.sleeper.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,9 +41,18 @@ public class DetailsClient {
 
 //    generatePerformanceArtifacts(leagueId);
     generateDraftPrepArtifacts(leagueId);
+//		generateDraftResultArtifacts(leagueId);
   }
 
-  //TODO create a weekly team performance artifacts method
+	private static void generateDraftResultArtifacts(String leagueId)
+			throws SleeperApiManager.SleeperApiServiceException {
+		DraftResultService svc = new DraftResultService();
+		List<SleeperDraftPick> draftResults = svc.getDraftResults(leagueId);
+		// TODO (maybe) join with player info
+		// TODO create a draft results writer
+	}
+
+	//TODO create a weekly team performance artifacts method
   // determines the number of points scored per team (i.e. starting players)
   // computes replacement team points weekly, best team points weekly, target team vorp, dollar per vorp target
 
